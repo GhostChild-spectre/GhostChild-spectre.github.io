@@ -1,4 +1,4 @@
-#This is a practice maarkdown file.
+#this is a practice maarkdown file.
 
 -List item 1
 -list item 2
@@ -6,4 +6,4 @@
 #heres a link
 
 [this is the displayed text](www.example.com)
-![this is text](https://pixieengine.com/sprites/204420-blitzo-helluva-boss))
+![this is text](https://influenceadvisors.com/why-is-this-monkey-smiling-and-how-can-the-answer-help-you-in-business/)

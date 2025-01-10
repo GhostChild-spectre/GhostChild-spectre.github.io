@@ -3,9 +3,60 @@
 <head>Website!</head>
 <body style="background-color:AliceBlue"></body>
 <h1>Hello!</h1>
-<h2>Greenbeans..</h2>
+<h2>My name is Clara, and this is my site! Custom-made by me ;)</h2>
 <!---comment--->
 <style>
+<style>
+.grid{
+        display:grid;
+        grid-template-rows:repeat(10,1fr);
+        grid-template-columns:repeat(10,1fr);
+        height:80vh;
+        text-align:center;
+        font-size:4em;
+        gap:10px;
+}
+.header{
+	grid-column-start:1;
+	grid-column-end:11;
+	grid-row-start:1;
+	grid-row-end:3;
+	background-color:LightBlue;
+	border:2px solid SteelBlue;
+}
+.block1{
+	grid-column-start:1;
+	grid-column-end:6;
+	grid-row-start:3;
+	grid-row-end:7;
+	background-color:LightBlue;
+	border:2px solid SteelBlue;
+}
+.block2{
+	grid-column-start:6;
+	grid-column-end:11;
+	grid-row-start:3;
+	grid-row-end:7;
+	background-color:LightBlue;
+	border:2px solid SteelBlue;
+}
+.block3{
+	grid-column-start:1;
+	grid-column-end:6;
+	grid-row-start:7;
+	grid-row-end:11;
+	background-color:LightBlue;
+	border:2px solid SteelBlue;
+}
+.block4{
+	grid-column-start:6;
+	grid-column-end:11;
+	grid-row-start:7;
+	grid-row-end:11;
+	background-color:LightBlue;
+	border:2px solid SteelBlue;
+}
+
 p{
 font-family:"Helvetica","Arial",sans-serif;
 }
@@ -22,9 +73,16 @@ font-size:20pt;
 </style>
 </head>
 <body>
-<p id="first">The quick brown fox jumped over the lazy dog.</p>
+<div class="grid">
+		<div class="header">My various projects!</div>
+		<div class="block1"><a href="library/">My library</a></div>
+		<div class="block2"><a href="Recipes">Recipes</a></div>
+		<div class="block3"><a href="https://czellejames2.wordpress.com/">WordPress project</a></div>
 
-<p id="second">The five boxing wizards jump quickly.If you can read this, you're a goofy little goober. Greenbeans are just overrated peas.</p>
+</div>
+<p id="first">My favorite pasta is penne, and I love seals.</p>
+
+<p id="second">If you can read this, you're a goofy little goober. Greenbeans are just overrated peas.</p>
 
 
 </body>

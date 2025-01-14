@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<body style="background-color:PeachPuff"></body>
+<h1>This is the 8-bit diner</h1>
+<!---comment--->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
+<style>
+h1{
+font-size:60;
+.jersey-10-regular {
+  font-family: "Jersey 10", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.grid{
+        display:grid;
+        grid-template-rows:repeat(10,1fr);
+        grid-template-columns:repeat(10,1fr);
+        height:80vh;
+        text-align:center;
+        font-size:4em;
+        gap:10px;
+}
+.header{
+        grid-column-start:1;
+        grid-column-end:11;
+        grid-row-start:1;
+        grid-row-end:3;
+
+}
+.block1{
+        grid-column-start:1;
+        grid-column-end:6;
+        grid-row-start:3;
+        grid-row-end:7;
+        background-color:Aquamarine;
+        border:2px solid Aquamarine;
+}
+.block2{
+        grid-column-start:6;
+        grid-column-end:11;
+        grid-row-start:3;
+        grid-row-end:7;
+        background-color:Aquamarine;
+        border:2px solid Aquamarine;
+}
+.block3{
+        grid-column-start:1;
+        grid-column-end:6;
+        grid-row-start:7;
+        grid-row-end:11;
+
+}
+.block4{
+        grid-column-start:6;
+        grid-column-end:11;
+        grid-row-start:7;
+        grid-row-end:11;
+        background-color:Aquamarine;
+        border:2px solid Aquamarine;
+}
+.block5{
+        grid-column-start:6;
+        grid-column-end:11;
+        grid-row-start:7;
+        grid-row-end:11;
+        background-color:Aquamarine;
+        border:2px solid Aquamarine;
+}
+#first{
+font-size:20pt;
+font-family:"Jersey 10","Arial",sans-serif;
+
+}
+
+#second{
+font-size:20pt;
+font-family:"Jersey 10","Arial",sans-serif;
+
+}
+</style>
+</head>
+<body>
+<div class="grid">
+<div class="grid">
+                <div class="header">Menu</div>
+                <div class="block1"><a href="library/">Breakfast: Waffles, chicken and waffles, pancakes (chocolate chip, blueberry or plain), eggs and bacon.</a></div>
+                <div class="block2"><a href="recipes">Sodas: Mountain dew, coca cola, sprite, sunkist, fanta, A&W root beer</a></div>
+                <div class="block3"><a href="https://czellejames2.wordpress.com/">Lunch:Burgers, Hotdogs, Chicken tenders, mac n cheese</a></div>
+ <div class="block1"><a href="library/">Dessert: Ice cream in strawberry, vanilla or choclate,cookie cake, pie, twinkies.</a></div>
+
+</div>
+<p id="first">No alcohol</p>
+
+<p id="second">Gluten-free foods are 1$ more if not pre-gluten free.</p>
+
+</body>
+</html>

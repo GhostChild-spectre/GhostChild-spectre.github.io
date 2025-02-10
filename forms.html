@@ -1,13 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>An HTML form</title>
+<title>Ice cream party!</title>
 <script src="js/init.js"></script>
 </head>
 <body>
-<h1>This is a form</h1>
+<h1>Ice cream party!</h1>
 <form action="forms.html" method="POST">
-<input type="email" id="email" name="animal"> placeholder="asdf@asfd.asdf">>
+<fieldset>
+  <legend>What's your Address?</legend>
+  <label for="address">Address:</label>
+  <input type="text" id="address" name="address">
+  <br>
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email">
+  <br>
+  <label for="Phone-number">Phone-number:</label>
+  <input type="text" id="Phone-number" name="phone-number">
+</fieldset>
+<form action="/action_page.php">
+  <p>Please select your favorite flavor:</p>
+  <input type="radio" id="html" name="fav_flavor" value="Strawberry">
+  <label for="html">Strawberry</label><br>
+  <input type="radio" id="css" name="fav_flavor" value="Vanilla">
+  <label for="css">Vanilla</label><br>
+  <input type="radio" id="javascript" name="fav_flavor" value="Chocolate">
+  <label for="javascript">Chocolate</label>
+
 <br>
 <input type="submit" name="submit">
 </form>

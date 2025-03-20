@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Times New Roman&display=swap');
+.p { 
+        background: ##B0C4DE; 
+}
+
+.second-color {
+        background: ##778899;
+}
+
+.third-color {
+        background: ###87CEFA;
+}
+h1 {
+        font-family: "Times New Roman", sans-serif;
+        font-weight: 100;
+        background: ##B0C4DE;
+        font-size: 400%
+}
+h2 {
+        font-family: "Times New Roman", sans-serif;
+        font-weight: 100;
+        background: ##B0C4DE;
+        font-size: 300%
+h3, h4, h5 {
+        font-family: "Times New Roman", sans-serif;
+        font-weight: 100;
+        background: ##B0C4DE;
+        font-size: 200%
+}
+ul, li {
+        font-family: "Times New Roman", sans-serif;
+        font-size: 120%;
+        font-weight: bold;
+}
+p, label, input {
+        font-family: "Times New Roman", sans-serif;
+        font-size: 180%;
+}
+th, td, table {
+        border: 2px solid;
+        border-collapse: collapse;
+        font-family: "Times New Roman", sans-serif;
+        text-align: center;
+        font-size: 180%;
+        background: ##B0C4DE;
+}
+a{
+        font-family: "Times New Roman", sans-serif;
+        text-align: center;
+        font-size: 200%;

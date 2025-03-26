@@ -49,4 +49,4 @@ This is my website repo. The old one is gone.
 
 ## Study Plan
 
-Today, I worked on correctly identifying HTML basic entities, and understanding the distinction between block level and inline elements.
+Today, I worked on correctly identifying HTML basic entities, and understanding the distinction between block level and inline elements. Here's the distinction one! <a href="elements.html">Block level/inline assignment (MARKDOWN wasn't cooperating)</a>

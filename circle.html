@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Self portrait</title>
+<script src="js/init.js">/<script>
+<style>
+canvas{
+display:block;
+border:1px solid;
+margin:auto;
+margin-top:50px;
+}
+</style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="400" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d");
+
+//a single circle
+function circlei(x,y){
+ctx.fillStyle = "red";
+ctx.beginPath();
+ctx.arc(x,y, 25,0,2*Math.PI);
+ctx.stroke();
+ctx.fill();
+}
+circle(100,100);
+circle(200,200);
+
+circle(300,300);
+</script>
+</html>

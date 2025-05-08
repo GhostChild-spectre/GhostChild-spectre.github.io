@@ -21,13 +21,6 @@ speed: 3
 const keys = {};
 
 //define functions
-function drawRect(x,y) {
-    console.log("drawing rect");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'green';
-    ctx.fillRect(x,y,60,60);
-    ctx.fill();
-}
 
 function drawPlayer(){
 ctx.fillStyle=player.color;ctx.beginPath();
@@ -120,7 +113,6 @@ score++;
 x = x + dx;
 y = y + dx;
 //y = y + 1;
-drawRect(x,y);
 drawScore();
 drawPlayer();
 movePlayer();

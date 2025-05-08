@@ -51,3 +51,11 @@ This is my website repo. The old one is gone.
 
 Today, I worked on correctly identifying HTML basic entities, and understanding the distinction between block level and inline elements. Here's the distinction one! <a href="elements.html">Block level/inline assignment (MARKDOWN wasn't cooperating)</a>
  <a href="entities.html">Basic entities!</a>
+My game outline:
+
+I will be creating a virtual etch-a sketch
+It will be a relaxing game (Genre)
+The objective is to relax and create cute art!
+The players can draw with the little "paintbrush" (the circle)
+The MVP features are simple drawing, beig able to move and create
+

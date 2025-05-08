@@ -53,9 +53,9 @@ Today, I worked on correctly identifying HTML basic entities, and understanding 
  <a href="entities.html">Basic entities!</a>
 My game outline:
 
-I will be creating a virtual etch-a sketch
-It will be a relaxing game (Genre)
+I will be creating a virtual etch-a sketch.
+It will be a relaxing game (Genre).
 The objective is to relax and create cute art!
-The players can draw with the little "paintbrush" (the circle)
-The MVP features are simple drawing, beig able to move and create
+The players can draw with the little "paintbrush" (the circle).
+The MVP features are simple drawing, being able to move and create
 

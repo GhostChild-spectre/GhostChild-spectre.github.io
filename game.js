@@ -7,7 +7,7 @@ let y = 0;
 let dy = 1;
 let score = 0;
 let gamerunning = true;
-
+let Z = 10;
 //this is an object
 //we access values in an object like this:
 //player x
@@ -27,7 +27,7 @@ ctx.fillStyle=player.color;ctx.beginPath();
 ctx.arc(
 player.x,
 player.y,
-20,
+Z,
 0,
 2*Math.PI
 );
@@ -52,14 +52,14 @@ player.x > 30){
 player.x -=player.speed;
 }
 if(keys['ArrowRight'] &&
-player.x < 370){
+player.x < 1000){
 player.x +=player.speed;
 }
 if(player.y < 0){
 player.y=400;
 }
-if(player.y > 400){
-player.y = 0;
+if(player.y > 600){
+player.y = 0;}
 if(keys['ArrowUp']){
 player.y -=player.speed;
 }
@@ -68,25 +68,72 @@ player.x > 30){
 player.x -=player.speed;
 }
 if(keys['ArrowRight'] &&
-player.x < 370){
+player.x < 1000){
 player.x +=player.speed;
 }
+if(keys['w']){
+ctx.clearRect(0,0,1000,600);
 }
+
 //TODO: what if the player goes off fscvreen??
 
 if(player.y < 0){
-player.y=400;
-}
-if(player.y > 400){
-player.y = 0;
-}
+player.y=600;
 }
 
+if(keys['h']){
+player.color= 'blue';
+}
+if(keys['a']){
+player.color= 'lavender';
+}
+if(keys['b']){
+player.color= 'green';
+}
+if(keys['c']){
+player.color= 'red';
+}
+if(keys['d']){
+player.color= 'orange';
+}
+if(keys['e']){
+player.color= 'yellow';
+}
+if(keys['f']){
+player.color= 'pink';
+}
+if(keys['g']){
+player.color= 'white';
+}
+if(keys['i']){
+Z =+1;
+} 
+if(keys['j']){
+Z =+10;}
+if(keys['k']){
+Z =+20;}
+if(keys['l']){
+Z =+30;}
+if(keys['z']){
+Z =+30;}
+if(keys['x']){
+Z +=10;}
+if(player.y > 600){
+player.y = 0;
+}
+if(keys['m']){
+Z =+50;}
+if(keys['n']){
+player.color= 'brown';
+}
+if(keys['o']){
+player.color= 'black';
+}
+}
 function drawScore(){
 ctx.font = "10px Arial";
 ctx.fillText(Math.floor(score/60), 10,10);
 }
-
 function checkCollision(){
 //does player touch box? We'll check with AABB
 
@@ -119,7 +166,7 @@ movePlayer();
 checkCollision();
 }
 
-if (x > 350){
+if (x > 1000){
 //x = x - 100;
 dx = dx * -1;
 }
@@ -127,7 +174,7 @@ if (x < 1){
 //x = x - 10;
 dx = dx * -1;
 }
-if (y > 350){
+if (y > 600){
 dy = dy * -1;
 }
 if (y < 0){

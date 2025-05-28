@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anime Gardening Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="anime-gardening.css">
+</head>
+<body>
+    <div class="container">
+        <h1> ˚୨୧⋆｡˚ ⋆Gardening game⋆ ˚｡⋆୨୧˚ </h1>
+        <div class="game-area">
+            <canvas id="gardenCanvas" width="420" height="360"></canvas>
+            <div class="controls">
+                <label>
+                    <span>Choose Seed:</span>
+                    <select id="seedSelect">
+                        <option value="tulip">✧.* Tulip</option>
+                        <option value="rose">✾ Rose</option>
+                        <option value="sunflower">❀ Sunflower</option>
+                    </select>
+                </label>
+                <button id="plantBtn">Plant</button>
+                <button id="waterBtn">Water</button>
+                <button id="harvestBtn">Harvest</button>
+                <div class="status" id="status"></div>
+            </div>
+        </div>
+        <div class="instructions">
+            <strong>How to play:</strong>
+            <ul>
+                <li>Choose a seed and click <b>Plant</b> to plant it in your garden.</li>
+                <li>Click <b>Water</b> to help your plant grow.</li>
+                <li>Once the plant is mature, click <b>Harvest</b>!</li>
+                <li>Each action has an anime-style effect and cute sound!</li>
+            </ul>
+        </div>
+    </div>
+    <audio id="waterSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa93b9.mp3"></audio>
+    <audio id="harvestSound" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa93b9.mp3"></audio>
+    <script src="anime-gardening.js"></script>
+</body>
+</html>

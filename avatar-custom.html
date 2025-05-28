@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cute Realistic Avatar Customizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="avatar-customizer.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cute Realistic Avatar Customizer</h1>
+        <div class="customizer">
+            <div class="avatar-preview" id="avatarPreview">
+                <canvas id="avatarCanvas" width="300" height="400"></canvas>
+            </div>
+            <form class="controls" onsubmit="return false;">
+                <div class="control-group">
+                    <label for="skinTone">Skin Tone</label>
+                    <input type="range" id="skinTone" min="0" max="4" value="2">
+                </div>
+                <div class="control-group">
+                    <label for="eyeColor">Eye Color</label>
+                    <select id="eyeColor">
+                        <option value="#5b432a">Brown</option>
+                        <option value="#1976d2">Blue</option>
+                        <option value="#53b700">Green</option>
+                        <option value="#a37b4d">Hazel</option>
+                        <option value="#000000">Black</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="hairStyle">Hair Style</label>
+                    <select id="hairStyle">
+                        <option value="short">Short</option>
+                        <option value="long">Long</option>
+                        <option value="bun">Bun</option>
+                        <option value="curly">Curly</option>
+                        <option value="ponytail">Ponytail</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="hairColor">Hair Color</label>
+                    <select id="hairColor">
+                        <option value="#1d1d1d">Black</option>
+                        <option value="#a0522d">Brown</option>
+                        <option value="#ffd700">Blonde</option>
+                        <option value="#ffb6b6">Pink</option>
+                        <option value="#b5651d">Auburn</option>
+                        <option value="#e5e4e2">Grey</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="accessory">Accessory</label>
+                    <select id="accessory">
+                        <option value="none">None</option>
+                        <option value="glasses">Glasses</option>
+                        <option value="hat">Hat</option>
+                        <option value="bow">Bow</option>
+                        <option value="earrings">Earrings</option>
+                    </select>
+                </div>
+                <button id="randomizeBtn">Randomize!</button>
+            </form>
+        </div>
+    </div>
+    <script src="avatar-custom.js"></script>
+</body>
+</html>

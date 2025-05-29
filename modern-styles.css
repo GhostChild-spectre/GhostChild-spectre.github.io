@@ -1,0 +1,171 @@
+:root {
+  --primary-bg: #fff8fc;
+  --header-bg: linear-gradient(90deg, #ffe1ef 0%, #d6e7ff 100%);
+  --card-bg: #fff5fb;
+  --card-hover-bg: #ffe8f8;
+  --accent: #ffb8f8;
+  --text: #624870;
+  --shadow: 0 4px 20px 0 rgba(237, 139, 192, 0.15);
+  --border-radius: 22px;
+  --card-border: #ffd6f6;
+  --project-title: #e36ba4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Quicksand', 'Segoe UI', 'Comic Sans MS', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--primary-bg);
+  color: var(--text);
+  letter-spacing: 0.03em;
+}
+
+header {
+  background: var(--header-bg);
+  padding: 2.5rem 0 1.5rem 0;
+  box-shadow: var(--shadow);
+  border-bottom: 3px dashed #ffd6f6;
+}
+
+header h1 {
+  font-size: 2.3rem;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  color: var(--project-title);
+  text-shadow: 1px 2px 0 #fff6fa, 0 0 6px #ffebfb;
+}
+
+header .subtitle {
+  margin-top: 0.6em;
+  color: #a07fa9;
+  font-size: 1.17rem;
+  font-style: italic;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.container {
+  width: 92%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2.1rem;
+  margin: 3.5rem 0 1.5rem 0;
+}
+
+.project-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 2.2rem 1.6rem 1.6rem 1.6rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: background 0.22s, transform 0.2s, box-shadow 0.22s;
+  border: 2.1px dashed var(--card-border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card:hover,
+.project-card:focus {
+  background: var(--card-hover-bg);
+  transform: translateY(-5px) scale(1.025) rotate(-1deg);
+  box-shadow: 0 8px 28px 0 rgba(200, 130, 210, 0.16);
+  border-color: var(--accent);
+  outline: none;
+}
+
+.project-card h2 {
+  margin: 0 0 0.55em 0;
+  font-size: 1.18rem;
+  color: var(--project-title);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.project-card p {
+  margin: 0;
+  color: #a07fa9;
+  font-size: 1.01rem;
+}
+
+.project-card:after {
+  content: "♡";
+  font-size: 1.2em;
+  color: #ffd6f6a0;
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  pointer-events: none;
+  transition: transform 0.18s;
+}
+
+.project-card:hover:after {
+  transform: scale(1.4) rotate(-16deg);
+  color: #ffb8f8b0;
+}
+
+.divider {
+  text-align: center;
+  font-size: 2em;
+  color: #ffd6f6;
+  margin: 2.5rem 0 1rem 0;
+  letter-spacing: 0.2em;
+  user-select: none;
+}
+
+footer {
+  background: #f3e6fa;
+  color: #a07fa9;
+  text-align: center;
+  padding: 1.7rem 0 1.2rem 0;
+  font-size: 1.07rem;
+  border-top: 2px dashed #ffd6f6;
+  letter-spacing: 0.05em;
+}
+
+footer a {
+  color: #e36ba4;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+footer .sparkles {
+  display: block;
+  margin-top: 0.7em;
+  font-size: 1.2em;
+  color: #ffb8f8;
+  letter-spacing: 0.07em;
+}
+
+@media (max-width: 600px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1.3rem;
+  }
+  header h1 {
+    font-size: 1.3rem;
+    gap: 0.3em;
+  }
+  .project-card {
+    padding: 1.5rem 1.1rem 1.1rem 1.1rem;
+  }
+}

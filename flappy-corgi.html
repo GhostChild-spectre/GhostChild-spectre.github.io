@@ -1,0 +1,2881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flappy Corgi - Cloud Pals Mini Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One|Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(180deg, #eaf7ff 0%, #ffe6fa 100%);
+      font-family: "Quicksand", "Fredoka One", cursive, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #685170;
+      overflow-x: hidden;
+    }
+    #glitter-bar {
+      width: 100vw;
+      min-height: 58px;
+      padding: 0.5rem 0 0.5rem 0;
+      background: linear-gradient(90deg, #f6e6fa 0%, #c6e6fa 100%);
+      box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vw;
+      border-bottom: 2.5px dashed #e7c0f7;
+      overflow-x: auto;
+      animation: glitterfade 2.4s linear infinite;
+      user-select: none;
+    }
+    @keyframes glitterfade {
+      0% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+      50% { box-shadow: 0 2px 16px #f3e6ffbb, 0 0 28px #ffe6ffcc;}
+      100% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+    }
+    .sparkle {
+      color: #ffcdfa;
+      font-size: 1.6em;
+      filter: drop-shadow(0 0 6px #fff5);
+      margin-right: 0.6em;
+      animation: sparkle-flicker 1.3s infinite alternate;
+    }
+    .sparkle2 {
+      color: #bedeff;
+      font-size: 1.2em;
+      filter: drop-shadow(0 0 6px #fff9);
+      margin-left: 0.45em;
+      animation: sparkle-flicker2 1.7s infinite alternate;
+    }
+    @keyframes sparkle-flicker {
+      0%, 100% { opacity: 1; transform: scale(1);}
+      30% { opacity: 0.6; transform: scale(0.98);}
+      60% { opacity: 0.86; transform: scale(1.12);}
+    }
+    @keyframes sparkle-flicker2 {
+      0%, 100% { opacity: 0.8; }
+      45% { opacity: 1; }
+      70% { opacity: 0.4; }
+    }
+    .glitter-menu {
+      display: flex;
+      gap: 1.6em;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .glitter-link {
+      text-decoration: none;
+      color: #b78ee2;
+      background: linear-gradient(90deg, #fffbe8 0%, #ffe6fa 100%);
+      font-family: "Fredoka One", cursive;
+      font-weight: 600;
+      font-size: 1.1em;
+      border-radius: 1.6em;
+      padding: 0.43em 1.5em;
+      margin: 0 2px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 10px #e7c0f726;
+      border: 1.5px solid #e7c0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      position: relative;
+    }
+    .glitter-link:hover, .glitter-link.active {
+      background: linear-gradient(90deg, #ffe6fa 0%, #b6e3ff 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px #b6e6ff55;
+      border-color: #b6e6ff;
+      text-decoration: underline;
+    }
+    .menu-mute {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      font-family: "Fredoka One", cursive;
+      color: #b78ee2;
+      cursor: pointer;
+      margin-left: 0.8em;
+      margin-right: 0.8em;
+      padding: 0.2em 0.5em;
+      background: rgba(255,255,255,0.7);
+      border-radius: 1.3em;
+      box-shadow: 0 1.5px 4px #b6e6ff33;
+      transition: background 0.15s, color 0.13s;
+      display: flex;
+      align-items: center;
+      gap: 0.1em;
+    }
+    .menu-mute.active, .menu-mute:hover {
+      color: #e36ba4;
+      background: #ffe8fa;
+    }
+    #music-audio { display: none; }
+    #game-container {
+      margin: 100px auto 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 600px;
+    }
+    #flappy-canvas {
+      background: linear-gradient(180deg, #eaf7ff 0%, #fffbe8 100%);
+      border-radius: 2.5rem;
+      box-shadow: 0 8px 32px #b6a6f4b2;
+      margin: 0 auto;
+      display: block;
+      width: 400px;
+      height: 560px;
+      max-width: 97vw;
+      outline: none;
+      border: 1.5px solid #e7c0f7;
+    }
+    #flappy-title {
+      font-family: "Fredoka One", cursive;
+      font-size: 2.1rem;
+      color: #b78ee2;
+      margin-bottom: 0.5em;
+      margin-top: 1.3em;
+      text-shadow: 0 2px 12px #fff6, 0 0 4px #fff;
+      letter-spacing: 0.04em;
+    }
+    #score {
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.25rem;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      letter-spacing:0.06em;
+    }
+    #flappy-instructions {
+      color: #a682cc;
+      font-size: 1.08em;
+      margin-bottom: 0.6em;
+      margin-top: 0.5em;
+      font-family: "Quicksand", sans-serif;
+    }
+    #restart-btn {
+      display: none;
+      margin-top: 1.3em;
+      background: linear-gradient(90deg, #ffd6fa 0%, #b6e3ff 100%);
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.2em;
+      border: 2px solid #e7c0f7;
+      border-radius: 2em;
+      padding: 0.5em 2em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .19s, color .19s, transform .12s;
+    }
+    #restart-btn:hover {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.05);
+    }
+    @media (max-width: 600px) {
+      #glitter-bar {flex-direction: column; gap: 0.7em;}
+      .glitter-menu {flex-wrap: wrap; gap: 0.7em;}
+      #game-container {margin-top: 80px;}
+      #flappy-title {font-size: 1.35rem;}
+      #flappy-canvas {width: 99vw; height: 62vw; min-height:340px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Glittering menu bar -->
+  <div id="glitter-bar">
+    <span class="sparkle">✧</span>
+    <nav class="glitter-menu">
+      <a class="glitter-link" href="cloud-pals-painting.html" title="Sky Painter"><span>🖌️</span>Sky Painter</a>
+      <a class="glitter-link active" href="flappy-corgi.html" id="goto-flappy" title="Corgi Flight"><span>🐾</span>Flappy Corgi</a>
+      <a class="glitter-link" href="#" id="goto-side" title="Side Scroller"><span>🚶‍♂️</span>Little Side Stroll</a>
+      <button class="menu-mute" id="music-toggle-btn" title="Mute/Play Music"><span id="music-toggle-icon">🔈</span>Music</button>
+    </nav>
+    <span class="sparkle2">✦</span>
+  </div>
+  <div id="game-container">
+    <div id="flappy-title">Flappy Corgi</div>
+    <div id="flappy-instructions">Click/tap or press space/↑ to jump! Avoid the pipes!</div>
+    <canvas id="flappy-canvas" width="400" height="560" tabindex="0"></canvas>
+    <div id="score">Score: <span id="score-num">0</span></div>
+    <button id="restart-btn">Restart</button>
+  </div>
+  <!-- Background music -->
+  <audio id="music-audio" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_127b9e7ce2.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    // --- Glitter bar menu music logic ---
+    const musicAudio = document.getElementById('music-audio');
+    const musicBtn = document.getElementById('music-toggle-btn');
+    const musicIcon = document.getElementById('music-toggle-icon');
+    let musicOn = false;
+    function setMusic(on) {
+      if(on){
+        musicAudio.volume = 0.28;
+        musicAudio.play();
+        musicBtn.classList.add('active');
+        musicIcon.textContent = "🔊";
+      }else{
+        musicAudio.pause();
+        musicBtn.classList.remove('active');
+        musicIcon.textContent = "🔈";
+      }
+      musicOn = on;
+    }
+    musicBtn.onclick = function(){
+      setMusic(!musicOn);
+    };
+    // Autoplay music if not blocked
+    window.addEventListener('DOMContentLoaded', ()=>{
+      setTimeout(()=>{setMusic(true)},400);
+    });
+
+    // --- Glitter bar menu navigation (side scroller stub) ---
+    document.getElementById('goto-side').onclick = function(e){
+      e.preventDefault();
+      alert("Little Side Stroll: Coming soon! 🚶‍♂️\n(You’ll play as a little person on a side-scrolling adventure!)");
+    };
+
+    // --- Flappy Corgi Game Logic ---
+    const canvas = document.getElementById('flappy-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // Corgi sprite (cute & simple, drawn with code)
+    function drawCorgi(x, y, vy, flapAnim) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Shadow
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.ellipse(0, 36, 32, 10, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#b6a6f4";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 32, 22, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#fff7e5";
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.stroke();
+
+      // White belly
+      ctx.beginPath();
+      ctx.ellipse(6, 10, 16, 9, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff7e5";
+      ctx.fill();
+
+      // Face
+      ctx.beginPath();
+      ctx.ellipse(18, -8, 13, 11, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Left ear
+      ctx.save();
+      ctx.rotate(-0.4);
+      ctx.beginPath();
+      ctx.ellipse(-3, -21, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      // Right ear
+      ctx.save();
+      ctx.rotate(0.32);
+      ctx.beginPath();
+      ctx.ellipse(28, -19, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(22, -10, 2.4, 0, 2 * Math.PI);
+      ctx.arc(14, -10, 2.4, 0, 2 * Math.PI);
+      ctx.fillStyle = "#533210";
+      ctx.fill();
+      // Eye highlights
+      ctx.beginPath();
+      ctx.arc(22.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.arc(14.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+
+      // Blush
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.ellipse(23.7, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.ellipse(12.3, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#e56bb6";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Mouth
+      ctx.beginPath();
+      ctx.moveTo(18, -3);
+      ctx.quadraticCurveTo(18, 0, 20, 0);
+      ctx.strokeStyle = "#bc8442";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Nose
+      ctx.beginPath();
+      ctx.arc(18.8, -6.5, 1.2, 0, 2 * Math.PI);
+      ctx.fillStyle = "#4a2d13";
+      ctx.fill();
+
+      // Front paws
+      ctx.save();
+      ctx.rotate(0.08);
+      ctx.beginPath();
+      ctx.ellipse(18, 19, 5, 6.2, 0.2, 0, 2 * Math.PI);
+      ctx.ellipse(-2, 18, 5, 6.2, -0.14, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Back paws
+      ctx.save();
+      ctx.rotate(-0.1);
+      ctx.beginPath();
+      ctx.ellipse(-12, 11, 4, 6.1, -0.12, 0, 2 * Math.PI);
+      ctx.ellipse(9, 28, 4, 6.1, 0.12, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Flap (tail)
+      ctx.save();
+      ctx.rotate(0.15);
+      ctx.globalAlpha = 0.71 + 0.24*Math.sin(flapAnim*2.5);
+      ctx.beginPath();
+      ctx.moveTo(-32, 8);
+      ctx.quadraticCurveTo(-40, 18 + Math.sin(flapAnim*6)*2, -20, 16 + Math.cos(flapAnim*4)*2);
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = "#fff7e5";
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // Pipe
+    function drawPipe(x, gapY, gapH) {
+      ctx.save();
+      ctx.strokeStyle = "#b6e3ff";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#b6e3ff";
+      ctx.shadowBlur = 1.8;
+      // Top pipe
+      ctx.fillStyle = "#b6e3ff";
+      ctx.beginPath();
+      ctx.rect(x, 0, 55, gapY);
+      ctx.fill();
+      ctx.stroke();
+      // Bottom pipe
+      ctx.beginPath();
+      ctx.rect(x, gapY + gapH, 55, H - (gapY + gapH));
+      ctx.fill();
+      ctx.stroke();
+      // Pipe Shine
+      ctx.globalAlpha = 0.19;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x + 5, 10, 9, gapY - 10);
+      ctx.fillRect(x + 5, gapY + gapH + 10, 9, H - (gapY + gapH + 20));
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // Game State
+    let corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+    let pipes = [];
+    let score = 0, bestScore = 0;
+    let tick = 0, gameStarted = false, gameOver = false;
+    let restartBtn = document.getElementById('restart-btn');
+    let scoreNum = document.getElementById('score-num');
+    let flapSound = null;
+
+    function resetGame() {
+      corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+      pipes = [];
+      tick = 0;
+      score = 0;
+      gameStarted = false;
+      gameOver = false;
+      scoreNum.textContent = "0";
+      restartBtn.style.display = "none";
+      draw();
+    }
+
+    function flap() {
+      if (!corgi.alive) return;
+      corgi.vy = -6.6;
+      corgi.flapAnim = 0;
+      if (flapSound) {
+        flapSound.currentTime = 0;
+        flapSound.play();
+      }
+      gameStarted = true;
+    }
+
+    function update() {
+      tick++;
+      if (!gameStarted) { draw(); requestAnimationFrame(update); return; }
+
+      // Corgi physics
+      corgi.vy += corgi.ay;
+      corgi.y += corgi.vy;
+      corgi.flapAnim += 0.13;
+
+      // Pipes
+      if (tick % 80 === 0) {
+        let gapY = 80 + Math.random()*(H-220);
+        let gapH = 112 + Math.random()*36;
+        pipes.push({x: W+2, gapY, gapH, passed: false});
+      }
+      pipes.forEach(pipe => { pipe.x -= 2.5; });
+
+      // Remove old pipes
+      pipes = pipes.filter(pipe => pipe.x > -60);
+
+      // Collision
+      pipes.forEach(pipe => {
+        if (!pipe.passed && pipe.x + 55 < corgi.x) {
+          score++;
+          scoreNum.textContent = score;
+          pipe.passed = true;
+        }
+        // Check for collision with corgi
+        if (
+          corgi.x + 22 > pipe.x && corgi.x - 22 < pipe.x + 55 &&
+          (corgi.y - 11 < pipe.gapY || corgi.y + 13 > pipe.gapY + pipe.gapH)
+        ) {
+          corgi.alive = false;
+        }
+      });
+
+      // Out of bounds
+      if (corgi.y > H-20 || corgi.y < 0) {
+        corgi.alive = false;
+      }
+
+      if (!corgi.alive && !gameOver) {
+        gameOver = true;
+        restartBtn.style.display = "inline-block";
+        if (score > bestScore) bestScore = score;
+      }
+
+      draw();
+      if (corgi.alive) requestAnimationFrame(update);
+    }
+
+    function draw() {
+      // BG
+      ctx.clearRect(0,0,W,H);
+      // Sky
+      let grad = ctx.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0, "#eaf7ff");
+      grad.addColorStop(1, "#fffbe8");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+
+      // Pastel clouds
+      for(let i=0;i<10;i++) {
+        ctx.save();
+        ctx.globalAlpha = 0.18 + 0.09*Math.sin(tick*0.01+i);
+        ctx.beginPath();
+        ctx.ellipse(60+i*40+Math.sin(tick*0.012+i)*8, 70+i*20-(i%3)*40, 44-(i%3)*9, 18+(i%4)*6, 0, 0, 2*Math.PI);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Pipes
+      pipes.forEach(pipe => drawPipe(pipe.x, pipe.gapY, pipe.gapH));
+
+      // Corgi
+      drawCorgi(corgi.x, corgi.y, corgi.vy, corgi.flapAnim);
+
+      // Ground
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, H-24, W, 24);
+      ctx.fillStyle = "#f6dcea";
+      ctx.fill();
+      ctx.restore();
+
+      // Score
+      ctx.save();
+      ctx.font = "bold 1.8em Fredoka One, cursive";
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#b78ee2";
+      ctx.lineWidth = 2;
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#b6a6f4";
+      ctx.shadowBlur = 5;
+      if (!gameStarted) {
+        ctx.fillText("Tap or Press Space/↑ to Start", W/2, H/2 - 24);
+      }
+      if (gameOver) {
+        ctx.fillStyle = "#b78ee2";
+        ctx.shadowBlur = 0;
+        ctx.strokeText("Game Over!", W/2, H/2 - 24);
+        ctx.fillText("Game Over!", W/2, H/2 - 24);
+        ctx.font = "bold 1.25em Fredoka One, cursive";
+        ctx.fillText("Best: " + bestScore, W/2, H/2 + 6);
+      }
+      ctx.restore();
+    }
+
+    // Input
+    canvas.addEventListener('pointerdown', flap);
+    document.addEventListener('keydown', function(e){
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        flap();
+      }
+    });
+    restartBtn.onclick = resetGame;
+
+    // Load sound (optional, will silently fail if not supported)
+    try {
+      flapSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8e3e.mp3");
+      flapSound.volume = 0.15;
+    } catch (e) {}
+
+    // Start the game loop
+    resetGame();
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flappy Corgi - Cloud Pals Mini Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One|Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(180deg, #eaf7ff 0%, #ffe6fa 100%);
+      font-family: "Quicksand", "Fredoka One", cursive, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #685170;
+      overflow-x: hidden;
+    }
+    #glitter-bar {
+      width: 100vw;
+      min-height: 58px;
+      padding: 0.5rem 0 0.5rem 0;
+      background: linear-gradient(90deg, #f6e6fa 0%, #c6e6fa 100%);
+      box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vw;
+      border-bottom: 2.5px dashed #e7c0f7;
+      overflow-x: auto;
+      animation: glitterfade 2.4s linear infinite;
+      user-select: none;
+    }
+    @keyframes glitterfade {
+      0% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+      50% { box-shadow: 0 2px 16px #f3e6ffbb, 0 0 28px #ffe6ffcc;}
+      100% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+    }
+    .sparkle {
+      color: #ffcdfa;
+      font-size: 1.6em;
+      filter: drop-shadow(0 0 6px #fff5);
+      margin-right: 0.6em;
+      animation: sparkle-flicker 1.3s infinite alternate;
+    }
+    .sparkle2 {
+      color: #bedeff;
+      font-size: 1.2em;
+      filter: drop-shadow(0 0 6px #fff9);
+      margin-left: 0.45em;
+      animation: sparkle-flicker2 1.7s infinite alternate;
+    }
+    @keyframes sparkle-flicker {
+      0%, 100% { opacity: 1; transform: scale(1);}
+      30% { opacity: 0.6; transform: scale(0.98);}
+      60% { opacity: 0.86; transform: scale(1.12);}
+    }
+    @keyframes sparkle-flicker2 {
+      0%, 100% { opacity: 0.8; }
+      45% { opacity: 1; }
+      70% { opacity: 0.4; }
+    }
+    .glitter-menu {
+      display: flex;
+      gap: 1.6em;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .glitter-link {
+      text-decoration: none;
+      color: #b78ee2;
+      background: linear-gradient(90deg, #fffbe8 0%, #ffe6fa 100%);
+      font-family: "Fredoka One", cursive;
+      font-weight: 600;
+      font-size: 1.1em;
+      border-radius: 1.6em;
+      padding: 0.43em 1.5em;
+      margin: 0 2px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 10px #e7c0f726;
+      border: 1.5px solid #e7c0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      position: relative;
+    }
+    .glitter-link:hover, .glitter-link.active {
+      background: linear-gradient(90deg, #ffe6fa 0%, #b6e3ff 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px #b6e6ff55;
+      border-color: #b6e6ff;
+      text-decoration: underline;
+    }
+    .menu-mute {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      font-family: "Fredoka One", cursive;
+      color: #b78ee2;
+      cursor: pointer;
+      margin-left: 0.8em;
+      margin-right: 0.8em;
+      padding: 0.2em 0.5em;
+      background: rgba(255,255,255,0.7);
+      border-radius: 1.3em;
+      box-shadow: 0 1.5px 4px #b6e6ff33;
+      transition: background 0.15s, color 0.13s;
+      display: flex;
+      align-items: center;
+      gap: 0.1em;
+    }
+    .menu-mute.active, .menu-mute:hover {
+      color: #e36ba4;
+      background: #ffe8fa;
+    }
+    #music-audio { display: none; }
+    #game-container {
+      margin: 100px auto 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 600px;
+    }
+    #flappy-canvas {
+      background: linear-gradient(180deg, #eaf7ff 0%, #fffbe8 100%);
+      border-radius: 2.5rem;
+      box-shadow: 0 8px 32px #b6a6f4b2;
+      margin: 0 auto;
+      display: block;
+      width: 400px;
+      height: 560px;
+      max-width: 97vw;
+      outline: none;
+      border: 1.5px solid #e7c0f7;
+    }
+    #flappy-title {
+      font-family: "Fredoka One", cursive;
+      font-size: 2.1rem;
+      color: #b78ee2;
+      margin-bottom: 0.5em;
+      margin-top: 1.3em;
+      text-shadow: 0 2px 12px #fff6, 0 0 4px #fff;
+      letter-spacing: 0.04em;
+    }
+    #score {
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.25rem;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      letter-spacing:0.06em;
+    }
+    #flappy-instructions {
+      color: #a682cc;
+      font-size: 1.08em;
+      margin-bottom: 0.6em;
+      margin-top: 0.5em;
+      font-family: "Quicksand", sans-serif;
+    }
+    #restart-btn {
+      display: none;
+      margin-top: 1.3em;
+      background: linear-gradient(90deg, #ffd6fa 0%, #b6e3ff 100%);
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.2em;
+      border: 2px solid #e7c0f7;
+      border-radius: 2em;
+      padding: 0.5em 2em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .19s, color .19s, transform .12s;
+    }
+    #restart-btn:hover {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.05);
+    }
+    @media (max-width: 600px) {
+      #glitter-bar {flex-direction: column; gap: 0.7em;}
+      .glitter-menu {flex-wrap: wrap; gap: 0.7em;}
+      #game-container {margin-top: 80px;}
+      #flappy-title {font-size: 1.35rem;}
+      #flappy-canvas {width: 99vw; height: 62vw; min-height:340px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Glittering menu bar -->
+  <div id="glitter-bar">
+    <span class="sparkle">✧</span>
+    <nav class="glitter-menu">
+      <a class="glitter-link" href="cloud-pals-painting.html" title="Sky Painter"><span>🖌️</span>Sky Painter</a>
+      <a class="glitter-link active" href="flappy-corgi.html" id="goto-flappy" title="Corgi Flight"><span>🐾</span>Flappy Corgi</a>
+      <a class="glitter-link" href="#" id="goto-side" title="Side Scroller"><span>🚶‍♂️</span>Little Side Stroll</a>
+      <button class="menu-mute" id="music-toggle-btn" title="Mute/Play Music"><span id="music-toggle-icon">🔈</span>Music</button>
+    </nav>
+    <span class="sparkle2">✦</span>
+  </div>
+  <div id="game-container">
+    <div id="flappy-title">Flappy Corgi</div>
+    <div id="flappy-instructions">Click/tap or press space/↑ to jump! Avoid the pipes!</div>
+    <canvas id="flappy-canvas" width="400" height="560" tabindex="0"></canvas>
+    <div id="score">Score: <span id="score-num">0</span></div>
+    <button id="restart-btn">Restart</button>
+  </div>
+  <!-- Background music -->
+  <audio id="music-audio" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_127b9e7ce2.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    // --- Glitter bar menu music logic ---
+    const musicAudio = document.getElementById('music-audio');
+    const musicBtn = document.getElementById('music-toggle-btn');
+    const musicIcon = document.getElementById('music-toggle-icon');
+    let musicOn = false;
+    function setMusic(on) {
+      if(on){
+        musicAudio.volume = 0.28;
+        musicAudio.play();
+        musicBtn.classList.add('active');
+        musicIcon.textContent = "🔊";
+      }else{
+        musicAudio.pause();
+        musicBtn.classList.remove('active');
+        musicIcon.textContent = "🔈";
+      }
+      musicOn = on;
+    }
+    musicBtn.onclick = function(){
+      setMusic(!musicOn);
+    };
+    // Autoplay music if not blocked
+    window.addEventListener('DOMContentLoaded', ()=>{
+      setTimeout(()=>{setMusic(true)},400);
+    });
+
+    // --- Glitter bar menu navigation (side scroller stub) ---
+    document.getElementById('goto-side').onclick = function(e){
+      e.preventDefault();
+      alert("Little Side Stroll: Coming soon! 🚶‍♂️\n(You’ll play as a little person on a side-scrolling adventure!)");
+    };
+
+    // --- Flappy Corgi Game Logic ---
+    const canvas = document.getElementById('flappy-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // Corgi sprite (cute & simple, drawn with code)
+    function drawCorgi(x, y, vy, flapAnim) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Shadow
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.ellipse(0, 36, 32, 10, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#b6a6f4";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 32, 22, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#fff7e5";
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.stroke();
+
+      // White belly
+      ctx.beginPath();
+      ctx.ellipse(6, 10, 16, 9, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff7e5";
+      ctx.fill();
+
+      // Face
+      ctx.beginPath();
+      ctx.ellipse(18, -8, 13, 11, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Left ear
+      ctx.save();
+      ctx.rotate(-0.4);
+      ctx.beginPath();
+      ctx.ellipse(-3, -21, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      // Right ear
+      ctx.save();
+      ctx.rotate(0.32);
+      ctx.beginPath();
+      ctx.ellipse(28, -19, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(22, -10, 2.4, 0, 2 * Math.PI);
+      ctx.arc(14, -10, 2.4, 0, 2 * Math.PI);
+      ctx.fillStyle = "#533210";
+      ctx.fill();
+      // Eye highlights
+      ctx.beginPath();
+      ctx.arc(22.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.arc(14.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+
+      // Blush
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.ellipse(23.7, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.ellipse(12.3, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#e56bb6";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Mouth
+      ctx.beginPath();
+      ctx.moveTo(18, -3);
+      ctx.quadraticCurveTo(18, 0, 20, 0);
+      ctx.strokeStyle = "#bc8442";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Nose
+      ctx.beginPath();
+      ctx.arc(18.8, -6.5, 1.2, 0, 2 * Math.PI);
+      ctx.fillStyle = "#4a2d13";
+      ctx.fill();
+
+      // Front paws
+      ctx.save();
+      ctx.rotate(0.08);
+      ctx.beginPath();
+      ctx.ellipse(18, 19, 5, 6.2, 0.2, 0, 2 * Math.PI);
+      ctx.ellipse(-2, 18, 5, 6.2, -0.14, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Back paws
+      ctx.save();
+      ctx.rotate(-0.1);
+      ctx.beginPath();
+      ctx.ellipse(-12, 11, 4, 6.1, -0.12, 0, 2 * Math.PI);
+      ctx.ellipse(9, 28, 4, 6.1, 0.12, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Flap (tail)
+      ctx.save();
+      ctx.rotate(0.15);
+      ctx.globalAlpha = 0.71 + 0.24*Math.sin(flapAnim*2.5);
+      ctx.beginPath();
+      ctx.moveTo(-32, 8);
+      ctx.quadraticCurveTo(-40, 18 + Math.sin(flapAnim*6)*2, -20, 16 + Math.cos(flapAnim*4)*2);
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = "#fff7e5";
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // Pipe
+    function drawPipe(x, gapY, gapH) {
+      ctx.save();
+      ctx.strokeStyle = "#b6e3ff";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#b6e3ff";
+      ctx.shadowBlur = 1.8;
+      // Top pipe
+      ctx.fillStyle = "#b6e3ff";
+      ctx.beginPath();
+      ctx.rect(x, 0, 55, gapY);
+      ctx.fill();
+      ctx.stroke();
+      // Bottom pipe
+      ctx.beginPath();
+      ctx.rect(x, gapY + gapH, 55, H - (gapY + gapH));
+      ctx.fill();
+      ctx.stroke();
+      // Pipe Shine
+      ctx.globalAlpha = 0.19;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x + 5, 10, 9, gapY - 10);
+      ctx.fillRect(x + 5, gapY + gapH + 10, 9, H - (gapY + gapH + 20));
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // Game State
+    let corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+    let pipes = [];
+    let score = 0, bestScore = 0;
+    let tick = 0, gameStarted = false, gameOver = false;
+    let restartBtn = document.getElementById('restart-btn');
+    let scoreNum = document.getElementById('score-num');
+    let flapSound = null;
+
+    function resetGame() {
+      corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+      pipes = [];
+      tick = 0;
+      score = 0;
+      gameStarted = false;
+      gameOver = false;
+      scoreNum.textContent = "0";
+      restartBtn.style.display = "none";
+      draw();
+    }
+
+    function flap() {
+      if (!corgi.alive) return;
+      corgi.vy = -6.6;
+      corgi.flapAnim = 0;
+      if (flapSound) {
+        flapSound.currentTime = 0;
+        flapSound.play();
+      }
+      gameStarted = true;
+    }
+
+    function update() {
+      tick++;
+      if (!gameStarted) { draw(); requestAnimationFrame(update); return; }
+
+      // Corgi physics
+      corgi.vy += corgi.ay;
+      corgi.y += corgi.vy;
+      corgi.flapAnim += 0.13;
+
+      // Pipes
+      if (tick % 80 === 0) {
+        let gapY = 80 + Math.random()*(H-220);
+        let gapH = 112 + Math.random()*36;
+        pipes.push({x: W+2, gapY, gapH, passed: false});
+      }
+      pipes.forEach(pipe => { pipe.x -= 2.5; });
+
+      // Remove old pipes
+      pipes = pipes.filter(pipe => pipe.x > -60);
+
+      // Collision
+      pipes.forEach(pipe => {
+        if (!pipe.passed && pipe.x + 55 < corgi.x) {
+          score++;
+          scoreNum.textContent = score;
+          pipe.passed = true;
+        }
+        // Check for collision with corgi
+        if (
+          corgi.x + 22 > pipe.x && corgi.x - 22 < pipe.x + 55 &&
+          (corgi.y - 11 < pipe.gapY || corgi.y + 13 > pipe.gapY + pipe.gapH)
+        ) {
+          corgi.alive = false;
+        }
+      });
+
+      // Out of bounds
+      if (corgi.y > H-20 || corgi.y < 0) {
+        corgi.alive = false;
+      }
+
+      if (!corgi.alive && !gameOver) {
+        gameOver = true;
+        restartBtn.style.display = "inline-block";
+        if (score > bestScore) bestScore = score;
+      }
+
+      draw();
+      if (corgi.alive) requestAnimationFrame(update);
+    }
+
+    function draw() {
+      // BG
+      ctx.clearRect(0,0,W,H);
+      // Sky
+      let grad = ctx.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0, "#eaf7ff");
+      grad.addColorStop(1, "#fffbe8");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+
+      // Pastel clouds
+      for(let i=0;i<10;i++) {
+        ctx.save();
+        ctx.globalAlpha = 0.18 + 0.09*Math.sin(tick*0.01+i);
+        ctx.beginPath();
+        ctx.ellipse(60+i*40+Math.sin(tick*0.012+i)*8, 70+i*20-(i%3)*40, 44-(i%3)*9, 18+(i%4)*6, 0, 0, 2*Math.PI);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Pipes
+      pipes.forEach(pipe => drawPipe(pipe.x, pipe.gapY, pipe.gapH));
+
+      // Corgi
+      drawCorgi(corgi.x, corgi.y, corgi.vy, corgi.flapAnim);
+
+      // Ground
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, H-24, W, 24);
+      ctx.fillStyle = "#f6dcea";
+      ctx.fill();
+      ctx.restore();
+
+      // Score
+      ctx.save();
+      ctx.font = "bold 1.8em Fredoka One, cursive";
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#b78ee2";
+      ctx.lineWidth = 2;
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#b6a6f4";
+      ctx.shadowBlur = 5;
+      if (!gameStarted) {
+        ctx.fillText("Tap or Press Space/↑ to Start", W/2, H/2 - 24);
+      }
+      if (gameOver) {
+        ctx.fillStyle = "#b78ee2";
+        ctx.shadowBlur = 0;
+        ctx.strokeText("Game Over!", W/2, H/2 - 24);
+        ctx.fillText("Game Over!", W/2, H/2 - 24);
+        ctx.font = "bold 1.25em Fredoka One, cursive";
+        ctx.fillText("Best: " + bestScore, W/2, H/2 + 6);
+      }
+      ctx.restore();
+    }
+
+    // Input
+    canvas.addEventListener('pointerdown', flap);
+    document.addEventListener('keydown', function(e){
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        flap();
+      }
+    });
+    restartBtn.onclick = resetGame;
+
+    // Load sound (optional, will silently fail if not supported)
+    try {
+      flapSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8e3e.mp3");
+      flapSound.volume = 0.15;
+    } catch (e) {}
+
+    // Start the game loop
+    resetGame();
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flappy Corgi - Cloud Pals Mini Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One|Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(180deg, #eaf7ff 0%, #ffe6fa 100%);
+      font-family: "Quicksand", "Fredoka One", cursive, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #685170;
+      overflow-x: hidden;
+    }
+    #glitter-bar {
+      width: 100vw;
+      min-height: 58px;
+      padding: 0.5rem 0 0.5rem 0;
+      background: linear-gradient(90deg, #f6e6fa 0%, #c6e6fa 100%);
+      box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vw;
+      border-bottom: 2.5px dashed #e7c0f7;
+      overflow-x: auto;
+      animation: glitterfade 2.4s linear infinite;
+      user-select: none;
+    }
+    @keyframes glitterfade {
+      0% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+      50% { box-shadow: 0 2px 16px #f3e6ffbb, 0 0 28px #ffe6ffcc;}
+      100% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+    }
+    .sparkle {
+      color: #ffcdfa;
+      font-size: 1.6em;
+      filter: drop-shadow(0 0 6px #fff5);
+      margin-right: 0.6em;
+      animation: sparkle-flicker 1.3s infinite alternate;
+    }
+    .sparkle2 {
+      color: #bedeff;
+      font-size: 1.2em;
+      filter: drop-shadow(0 0 6px #fff9);
+      margin-left: 0.45em;
+      animation: sparkle-flicker2 1.7s infinite alternate;
+    }
+    @keyframes sparkle-flicker {
+      0%, 100% { opacity: 1; transform: scale(1);}
+      30% { opacity: 0.6; transform: scale(0.98);}
+      60% { opacity: 0.86; transform: scale(1.12);}
+    }
+    @keyframes sparkle-flicker2 {
+      0%, 100% { opacity: 0.8; }
+      45% { opacity: 1; }
+      70% { opacity: 0.4; }
+    }
+    .glitter-menu {
+      display: flex;
+      gap: 1.6em;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .glitter-link {
+      text-decoration: none;
+      color: #b78ee2;
+      background: linear-gradient(90deg, #fffbe8 0%, #ffe6fa 100%);
+      font-family: "Fredoka One", cursive;
+      font-weight: 600;
+      font-size: 1.1em;
+      border-radius: 1.6em;
+      padding: 0.43em 1.5em;
+      margin: 0 2px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 10px #e7c0f726;
+      border: 1.5px solid #e7c0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      position: relative;
+    }
+    .glitter-link:hover, .glitter-link.active {
+      background: linear-gradient(90deg, #ffe6fa 0%, #b6e3ff 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px #b6e6ff55;
+      border-color: #b6e6ff;
+      text-decoration: underline;
+    }
+    .menu-mute {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      font-family: "Fredoka One", cursive;
+      color: #b78ee2;
+      cursor: pointer;
+      margin-left: 0.8em;
+      margin-right: 0.8em;
+      padding: 0.2em 0.5em;
+      background: rgba(255,255,255,0.7);
+      border-radius: 1.3em;
+      box-shadow: 0 1.5px 4px #b6e6ff33;
+      transition: background 0.15s, color 0.13s;
+      display: flex;
+      align-items: center;
+      gap: 0.1em;
+    }
+    .menu-mute.active, .menu-mute:hover {
+      color: #e36ba4;
+      background: #ffe8fa;
+    }
+    #music-audio { display: none; }
+    #game-container {
+      margin: 100px auto 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 600px;
+    }
+    #flappy-canvas {
+      background: linear-gradient(180deg, #eaf7ff 0%, #fffbe8 100%);
+      border-radius: 2.5rem;
+      box-shadow: 0 8px 32px #b6a6f4b2;
+      margin: 0 auto;
+      display: block;
+      width: 400px;
+      height: 560px;
+      max-width: 97vw;
+      outline: none;
+      border: 1.5px solid #e7c0f7;
+    }
+    #flappy-title {
+      font-family: "Fredoka One", cursive;
+      font-size: 2.1rem;
+      color: #b78ee2;
+      margin-bottom: 0.5em;
+      margin-top: 1.3em;
+      text-shadow: 0 2px 12px #fff6, 0 0 4px #fff;
+      letter-spacing: 0.04em;
+    }
+    #score {
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.25rem;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      letter-spacing:0.06em;
+    }
+    #flappy-instructions {
+      color: #a682cc;
+      font-size: 1.08em;
+      margin-bottom: 0.6em;
+      margin-top: 0.5em;
+      font-family: "Quicksand", sans-serif;
+    }
+    #restart-btn {
+      display: none;
+      margin-top: 1.3em;
+      background: linear-gradient(90deg, #ffd6fa 0%, #b6e3ff 100%);
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.2em;
+      border: 2px solid #e7c0f7;
+      border-radius: 2em;
+      padding: 0.5em 2em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .19s, color .19s, transform .12s;
+    }
+    #restart-btn:hover {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.05);
+    }
+    @media (max-width: 600px) {
+      #glitter-bar {flex-direction: column; gap: 0.7em;}
+      .glitter-menu {flex-wrap: wrap; gap: 0.7em;}
+      #game-container {margin-top: 80px;}
+      #flappy-title {font-size: 1.35rem;}
+      #flappy-canvas {width: 99vw; height: 62vw; min-height:340px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Glittering menu bar -->
+  <div id="glitter-bar">
+    <span class="sparkle">✧</span>
+    <nav class="glitter-menu">
+      <a class="glitter-link" href="cloud-pals-painting.html" title="Sky Painter"><span>🖌️</span>Sky Painter</a>
+      <a class="glitter-link active" href="flappy-corgi.html" id="goto-flappy" title="Corgi Flight"><span>🐾</span>Flappy Corgi</a>
+      <a class="glitter-link" href="#" id="goto-side" title="Side Scroller"><span>🚶‍♂️</span>Little Side Stroll</a>
+      <button class="menu-mute" id="music-toggle-btn" title="Mute/Play Music"><span id="music-toggle-icon">🔈</span>Music</button>
+    </nav>
+    <span class="sparkle2">✦</span>
+  </div>
+  <div id="game-container">
+    <div id="flappy-title">Flappy Corgi</div>
+    <div id="flappy-instructions">Click/tap or press space/↑ to jump! Avoid the pipes!</div>
+    <canvas id="flappy-canvas" width="400" height="560" tabindex="0"></canvas>
+    <div id="score">Score: <span id="score-num">0</span></div>
+    <button id="restart-btn">Restart</button>
+  </div>
+  <!-- Background music -->
+  <audio id="music-audio" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_127b9e7ce2.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    // --- Glitter bar menu music logic ---
+    const musicAudio = document.getElementById('music-audio');
+    const musicBtn = document.getElementById('music-toggle-btn');
+    const musicIcon = document.getElementById('music-toggle-icon');
+    let musicOn = false;
+    function setMusic(on) {
+      if(on){
+        musicAudio.volume = 0.28;
+        musicAudio.play();
+        musicBtn.classList.add('active');
+        musicIcon.textContent = "🔊";
+      }else{
+        musicAudio.pause();
+        musicBtn.classList.remove('active');
+        musicIcon.textContent = "🔈";
+      }
+      musicOn = on;
+    }
+    musicBtn.onclick = function(){
+      setMusic(!musicOn);
+    };
+    // Autoplay music if not blocked
+    window.addEventListener('DOMContentLoaded', ()=>{
+      setTimeout(()=>{setMusic(true)},400);
+    });
+
+    // --- Glitter bar menu navigation (side scroller stub) ---
+    document.getElementById('goto-side').onclick = function(e){
+      e.preventDefault();
+      alert("Little Side Stroll: Coming soon! 🚶‍♂️\n(You’ll play as a little person on a side-scrolling adventure!)");
+    };
+
+    // --- Flappy Corgi Game Logic ---
+    const canvas = document.getElementById('flappy-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // Corgi sprite (cute & simple, drawn with code)
+    function drawCorgi(x, y, vy, flapAnim) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Shadow
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.ellipse(0, 36, 32, 10, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#b6a6f4";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 32, 22, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#fff7e5";
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.stroke();
+
+      // White belly
+      ctx.beginPath();
+      ctx.ellipse(6, 10, 16, 9, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff7e5";
+      ctx.fill();
+
+      // Face
+      ctx.beginPath();
+      ctx.ellipse(18, -8, 13, 11, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Left ear
+      ctx.save();
+      ctx.rotate(-0.4);
+      ctx.beginPath();
+      ctx.ellipse(-3, -21, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      // Right ear
+      ctx.save();
+      ctx.rotate(0.32);
+      ctx.beginPath();
+      ctx.ellipse(28, -19, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(22, -10, 2.4, 0, 2 * Math.PI);
+      ctx.arc(14, -10, 2.4, 0, 2 * Math.PI);
+      ctx.fillStyle = "#533210";
+      ctx.fill();
+      // Eye highlights
+      ctx.beginPath();
+      ctx.arc(22.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.arc(14.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+
+      // Blush
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.ellipse(23.7, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.ellipse(12.3, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#e56bb6";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Mouth
+      ctx.beginPath();
+      ctx.moveTo(18, -3);
+      ctx.quadraticCurveTo(18, 0, 20, 0);
+      ctx.strokeStyle = "#bc8442";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Nose
+      ctx.beginPath();
+      ctx.arc(18.8, -6.5, 1.2, 0, 2 * Math.PI);
+      ctx.fillStyle = "#4a2d13";
+      ctx.fill();
+
+      // Front paws
+      ctx.save();
+      ctx.rotate(0.08);
+      ctx.beginPath();
+      ctx.ellipse(18, 19, 5, 6.2, 0.2, 0, 2 * Math.PI);
+      ctx.ellipse(-2, 18, 5, 6.2, -0.14, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Back paws
+      ctx.save();
+      ctx.rotate(-0.1);
+      ctx.beginPath();
+      ctx.ellipse(-12, 11, 4, 6.1, -0.12, 0, 2 * Math.PI);
+      ctx.ellipse(9, 28, 4, 6.1, 0.12, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Flap (tail)
+      ctx.save();
+      ctx.rotate(0.15);
+      ctx.globalAlpha = 0.71 + 0.24*Math.sin(flapAnim*2.5);
+      ctx.beginPath();
+      ctx.moveTo(-32, 8);
+      ctx.quadraticCurveTo(-40, 18 + Math.sin(flapAnim*6)*2, -20, 16 + Math.cos(flapAnim*4)*2);
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = "#fff7e5";
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // Pipe
+    function drawPipe(x, gapY, gapH) {
+      ctx.save();
+      ctx.strokeStyle = "#b6e3ff";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#b6e3ff";
+      ctx.shadowBlur = 1.8;
+      // Top pipe
+      ctx.fillStyle = "#b6e3ff";
+      ctx.beginPath();
+      ctx.rect(x, 0, 55, gapY);
+      ctx.fill();
+      ctx.stroke();
+      // Bottom pipe
+      ctx.beginPath();
+      ctx.rect(x, gapY + gapH, 55, H - (gapY + gapH));
+      ctx.fill();
+      ctx.stroke();
+      // Pipe Shine
+      ctx.globalAlpha = 0.19;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x + 5, 10, 9, gapY - 10);
+      ctx.fillRect(x + 5, gapY + gapH + 10, 9, H - (gapY + gapH + 20));
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // Game State
+    let corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+    let pipes = [];
+    let score = 0, bestScore = 0;
+    let tick = 0, gameStarted = false, gameOver = false;
+    let restartBtn = document.getElementById('restart-btn');
+    let scoreNum = document.getElementById('score-num');
+    let flapSound = null;
+
+    function resetGame() {
+      corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+      pipes = [];
+      tick = 0;
+      score = 0;
+      gameStarted = false;
+      gameOver = false;
+      scoreNum.textContent = "0";
+      restartBtn.style.display = "none";
+      draw();
+    }
+
+    function flap() {
+      if (!corgi.alive) return;
+      corgi.vy = -6.6;
+      corgi.flapAnim = 0;
+      if (flapSound) {
+        flapSound.currentTime = 0;
+        flapSound.play();
+      }
+      gameStarted = true;
+    }
+
+    function update() {
+      tick++;
+      if (!gameStarted) { draw(); requestAnimationFrame(update); return; }
+
+      // Corgi physics
+      corgi.vy += corgi.ay;
+      corgi.y += corgi.vy;
+      corgi.flapAnim += 0.13;
+
+      // Pipes
+      if (tick % 80 === 0) {
+        let gapY = 80 + Math.random()*(H-220);
+        let gapH = 112 + Math.random()*36;
+        pipes.push({x: W+2, gapY, gapH, passed: false});
+      }
+      pipes.forEach(pipe => { pipe.x -= 2.5; });
+
+      // Remove old pipes
+      pipes = pipes.filter(pipe => pipe.x > -60);
+
+      // Collision
+      pipes.forEach(pipe => {
+        if (!pipe.passed && pipe.x + 55 < corgi.x) {
+          score++;
+          scoreNum.textContent = score;
+          pipe.passed = true;
+        }
+        // Check for collision with corgi
+        if (
+          corgi.x + 22 > pipe.x && corgi.x - 22 < pipe.x + 55 &&
+          (corgi.y - 11 < pipe.gapY || corgi.y + 13 > pipe.gapY + pipe.gapH)
+        ) {
+          corgi.alive = false;
+        }
+      });
+
+      // Out of bounds
+      if (corgi.y > H-20 || corgi.y < 0) {
+        corgi.alive = false;
+      }
+
+      if (!corgi.alive && !gameOver) {
+        gameOver = true;
+        restartBtn.style.display = "inline-block";
+        if (score > bestScore) bestScore = score;
+      }
+
+      draw();
+      if (corgi.alive) requestAnimationFrame(update);
+    }
+
+    function draw() {
+      // BG
+      ctx.clearRect(0,0,W,H);
+      // Sky
+      let grad = ctx.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0, "#eaf7ff");
+      grad.addColorStop(1, "#fffbe8");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+
+      // Pastel clouds
+      for(let i=0;i<10;i++) {
+        ctx.save();
+        ctx.globalAlpha = 0.18 + 0.09*Math.sin(tick*0.01+i);
+        ctx.beginPath();
+        ctx.ellipse(60+i*40+Math.sin(tick*0.012+i)*8, 70+i*20-(i%3)*40, 44-(i%3)*9, 18+(i%4)*6, 0, 0, 2*Math.PI);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Pipes
+      pipes.forEach(pipe => drawPipe(pipe.x, pipe.gapY, pipe.gapH));
+
+      // Corgi
+      drawCorgi(corgi.x, corgi.y, corgi.vy, corgi.flapAnim);
+
+      // Ground
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, H-24, W, 24);
+      ctx.fillStyle = "#f6dcea";
+      ctx.fill();
+      ctx.restore();
+
+      // Score
+      ctx.save();
+      ctx.font = "bold 1.8em Fredoka One, cursive";
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#b78ee2";
+      ctx.lineWidth = 2;
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#b6a6f4";
+      ctx.shadowBlur = 5;
+      if (!gameStarted) {
+        ctx.fillText("Tap or Press Space/↑ to Start", W/2, H/2 - 24);
+      }
+      if (gameOver) {
+        ctx.fillStyle = "#b78ee2";
+        ctx.shadowBlur = 0;
+        ctx.strokeText("Game Over!", W/2, H/2 - 24);
+        ctx.fillText("Game Over!", W/2, H/2 - 24);
+        ctx.font = "bold 1.25em Fredoka One, cursive";
+        ctx.fillText("Best: " + bestScore, W/2, H/2 + 6);
+      }
+      ctx.restore();
+    }
+
+    // Input
+    canvas.addEventListener('pointerdown', flap);
+    document.addEventListener('keydown', function(e){
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        flap();
+      }
+    });
+    restartBtn.onclick = resetGame;
+
+    // Load sound (optional, will silently fail if not supported)
+    try {
+      flapSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8e3e.mp3");
+      flapSound.volume = 0.15;
+    } catch (e) {}
+
+    // Start the game loop
+    resetGame();
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flappy Corgi - Cloud Pals Mini Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One|Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(180deg, #eaf7ff 0%, #ffe6fa 100%);
+      font-family: "Quicksand", "Fredoka One", cursive, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #685170;
+      overflow-x: hidden;
+    }
+    #glitter-bar {
+      width: 100vw;
+      min-height: 58px;
+      padding: 0.5rem 0 0.5rem 0;
+      background: linear-gradient(90deg, #f6e6fa 0%, #c6e6fa 100%);
+      box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vw;
+      border-bottom: 2.5px dashed #e7c0f7;
+      overflow-x: auto;
+      animation: glitterfade 2.4s linear infinite;
+      user-select: none;
+    }
+    @keyframes glitterfade {
+      0% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+      50% { box-shadow: 0 2px 16px #f3e6ffbb, 0 0 28px #ffe6ffcc;}
+      100% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+    }
+    .sparkle {
+      color: #ffcdfa;
+      font-size: 1.6em;
+      filter: drop-shadow(0 0 6px #fff5);
+      margin-right: 0.6em;
+      animation: sparkle-flicker 1.3s infinite alternate;
+    }
+    .sparkle2 {
+      color: #bedeff;
+      font-size: 1.2em;
+      filter: drop-shadow(0 0 6px #fff9);
+      margin-left: 0.45em;
+      animation: sparkle-flicker2 1.7s infinite alternate;
+    }
+    @keyframes sparkle-flicker {
+      0%, 100% { opacity: 1; transform: scale(1);}
+      30% { opacity: 0.6; transform: scale(0.98);}
+      60% { opacity: 0.86; transform: scale(1.12);}
+    }
+    @keyframes sparkle-flicker2 {
+      0%, 100% { opacity: 0.8; }
+      45% { opacity: 1; }
+      70% { opacity: 0.4; }
+    }
+    .glitter-menu {
+      display: flex;
+      gap: 1.6em;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .glitter-link {
+      text-decoration: none;
+      color: #b78ee2;
+      background: linear-gradient(90deg, #fffbe8 0%, #ffe6fa 100%);
+      font-family: "Fredoka One", cursive;
+      font-weight: 600;
+      font-size: 1.1em;
+      border-radius: 1.6em;
+      padding: 0.43em 1.5em;
+      margin: 0 2px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 10px #e7c0f726;
+      border: 1.5px solid #e7c0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      position: relative;
+    }
+    .glitter-link:hover, .glitter-link.active {
+      background: linear-gradient(90deg, #ffe6fa 0%, #b6e3ff 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px #b6e6ff55;
+      border-color: #b6e6ff;
+      text-decoration: underline;
+    }
+    .menu-mute {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      font-family: "Fredoka One", cursive;
+      color: #b78ee2;
+      cursor: pointer;
+      margin-left: 0.8em;
+      margin-right: 0.8em;
+      padding: 0.2em 0.5em;
+      background: rgba(255,255,255,0.7);
+      border-radius: 1.3em;
+      box-shadow: 0 1.5px 4px #b6e6ff33;
+      transition: background 0.15s, color 0.13s;
+      display: flex;
+      align-items: center;
+      gap: 0.1em;
+    }
+    .menu-mute.active, .menu-mute:hover {
+      color: #e36ba4;
+      background: #ffe8fa;
+    }
+    #music-audio { display: none; }
+    #game-container {
+      margin: 100px auto 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 600px;
+    }
+    #flappy-canvas {
+      background: linear-gradient(180deg, #eaf7ff 0%, #fffbe8 100%);
+      border-radius: 2.5rem;
+      box-shadow: 0 8px 32px #b6a6f4b2;
+      margin: 0 auto;
+      display: block;
+      width: 400px;
+      height: 560px;
+      max-width: 97vw;
+      outline: none;
+      border: 1.5px solid #e7c0f7;
+    }
+    #flappy-title {
+      font-family: "Fredoka One", cursive;
+      font-size: 2.1rem;
+      color: #b78ee2;
+      margin-bottom: 0.5em;
+      margin-top: 1.3em;
+      text-shadow: 0 2px 12px #fff6, 0 0 4px #fff;
+      letter-spacing: 0.04em;
+    }
+    #score {
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.25rem;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      letter-spacing:0.06em;
+    }
+    #flappy-instructions {
+      color: #a682cc;
+      font-size: 1.08em;
+      margin-bottom: 0.6em;
+      margin-top: 0.5em;
+      font-family: "Quicksand", sans-serif;
+    }
+    #restart-btn {
+      display: none;
+      margin-top: 1.3em;
+      background: linear-gradient(90deg, #ffd6fa 0%, #b6e3ff 100%);
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.2em;
+      border: 2px solid #e7c0f7;
+      border-radius: 2em;
+      padding: 0.5em 2em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .19s, color .19s, transform .12s;
+    }
+    #restart-btn:hover {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.05);
+    }
+    @media (max-width: 600px) {
+      #glitter-bar {flex-direction: column; gap: 0.7em;}
+      .glitter-menu {flex-wrap: wrap; gap: 0.7em;}
+      #game-container {margin-top: 80px;}
+      #flappy-title {font-size: 1.35rem;}
+      #flappy-canvas {width: 99vw; height: 62vw; min-height:340px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Glittering menu bar -->
+  <div id="glitter-bar">
+    <span class="sparkle">✧</span>
+    <nav class="glitter-menu">
+      <a class="glitter-link" href="cloud-pals-painting.html" title="Sky Painter"><span>🖌️</span>Sky Painter</a>
+      <a class="glitter-link active" href="flappy-corgi.html" id="goto-flappy" title="Corgi Flight"><span>🐾</span>Flappy Corgi</a>
+      <a class="glitter-link" href="#" id="goto-side" title="Side Scroller"><span>🚶‍♂️</span>Little Side Stroll</a>
+      <button class="menu-mute" id="music-toggle-btn" title="Mute/Play Music"><span id="music-toggle-icon">🔈</span>Music</button>
+    </nav>
+    <span class="sparkle2">✦</span>
+  </div>
+  <div id="game-container">
+    <div id="flappy-title">Flappy Corgi</div>
+    <div id="flappy-instructions">Click/tap or press space/↑ to jump! Avoid the pipes!</div>
+    <canvas id="flappy-canvas" width="400" height="560" tabindex="0"></canvas>
+    <div id="score">Score: <span id="score-num">0</span></div>
+    <button id="restart-btn">Restart</button>
+  </div>
+  <!-- Background music -->
+  <audio id="music-audio" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_127b9e7ce2.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    // --- Glitter bar menu music logic ---
+    const musicAudio = document.getElementById('music-audio');
+    const musicBtn = document.getElementById('music-toggle-btn');
+    const musicIcon = document.getElementById('music-toggle-icon');
+    let musicOn = false;
+    function setMusic(on) {
+      if(on){
+        musicAudio.volume = 0.28;
+        musicAudio.play();
+        musicBtn.classList.add('active');
+        musicIcon.textContent = "🔊";
+      }else{
+        musicAudio.pause();
+        musicBtn.classList.remove('active');
+        musicIcon.textContent = "🔈";
+      }
+      musicOn = on;
+    }
+    musicBtn.onclick = function(){
+      setMusic(!musicOn);
+    };
+    // Autoplay music if not blocked
+    window.addEventListener('DOMContentLoaded', ()=>{
+      setTimeout(()=>{setMusic(true)},400);
+    });
+
+    // --- Glitter bar menu navigation (side scroller stub) ---
+    document.getElementById('goto-side').onclick = function(e){
+      e.preventDefault();
+      alert("Little Side Stroll: Coming soon! 🚶‍♂️\n(You’ll play as a little person on a side-scrolling adventure!)");
+    };
+
+    // --- Flappy Corgi Game Logic ---
+    const canvas = document.getElementById('flappy-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // Corgi sprite (cute & simple, drawn with code)
+    function drawCorgi(x, y, vy, flapAnim) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Shadow
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.ellipse(0, 36, 32, 10, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#b6a6f4";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 32, 22, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#fff7e5";
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.stroke();
+
+      // White belly
+      ctx.beginPath();
+      ctx.ellipse(6, 10, 16, 9, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff7e5";
+      ctx.fill();
+
+      // Face
+      ctx.beginPath();
+      ctx.ellipse(18, -8, 13, 11, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Left ear
+      ctx.save();
+      ctx.rotate(-0.4);
+      ctx.beginPath();
+      ctx.ellipse(-3, -21, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      // Right ear
+      ctx.save();
+      ctx.rotate(0.32);
+      ctx.beginPath();
+      ctx.ellipse(28, -19, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(22, -10, 2.4, 0, 2 * Math.PI);
+      ctx.arc(14, -10, 2.4, 0, 2 * Math.PI);
+      ctx.fillStyle = "#533210";
+      ctx.fill();
+      // Eye highlights
+      ctx.beginPath();
+      ctx.arc(22.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.arc(14.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+
+      // Blush
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.ellipse(23.7, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.ellipse(12.3, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#e56bb6";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Mouth
+      ctx.beginPath();
+      ctx.moveTo(18, -3);
+      ctx.quadraticCurveTo(18, 0, 20, 0);
+      ctx.strokeStyle = "#bc8442";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Nose
+      ctx.beginPath();
+      ctx.arc(18.8, -6.5, 1.2, 0, 2 * Math.PI);
+      ctx.fillStyle = "#4a2d13";
+      ctx.fill();
+
+      // Front paws
+      ctx.save();
+      ctx.rotate(0.08);
+      ctx.beginPath();
+      ctx.ellipse(18, 19, 5, 6.2, 0.2, 0, 2 * Math.PI);
+      ctx.ellipse(-2, 18, 5, 6.2, -0.14, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Back paws
+      ctx.save();
+      ctx.rotate(-0.1);
+      ctx.beginPath();
+      ctx.ellipse(-12, 11, 4, 6.1, -0.12, 0, 2 * Math.PI);
+      ctx.ellipse(9, 28, 4, 6.1, 0.12, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Flap (tail)
+      ctx.save();
+      ctx.rotate(0.15);
+      ctx.globalAlpha = 0.71 + 0.24*Math.sin(flapAnim*2.5);
+      ctx.beginPath();
+      ctx.moveTo(-32, 8);
+      ctx.quadraticCurveTo(-40, 18 + Math.sin(flapAnim*6)*2, -20, 16 + Math.cos(flapAnim*4)*2);
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = "#fff7e5";
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // Pipe
+    function drawPipe(x, gapY, gapH) {
+      ctx.save();
+      ctx.strokeStyle = "#b6e3ff";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#b6e3ff";
+      ctx.shadowBlur = 1.8;
+      // Top pipe
+      ctx.fillStyle = "#b6e3ff";
+      ctx.beginPath();
+      ctx.rect(x, 0, 55, gapY);
+      ctx.fill();
+      ctx.stroke();
+      // Bottom pipe
+      ctx.beginPath();
+      ctx.rect(x, gapY + gapH, 55, H - (gapY + gapH));
+      ctx.fill();
+      ctx.stroke();
+      // Pipe Shine
+      ctx.globalAlpha = 0.19;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x + 5, 10, 9, gapY - 10);
+      ctx.fillRect(x + 5, gapY + gapH + 10, 9, H - (gapY + gapH + 20));
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // Game State
+    let corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+    let pipes = [];
+    let score = 0, bestScore = 0;
+    let tick = 0, gameStarted = false, gameOver = false;
+    let restartBtn = document.getElementById('restart-btn');
+    let scoreNum = document.getElementById('score-num');
+    let flapSound = null;
+
+    function resetGame() {
+      corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+      pipes = [];
+      tick = 0;
+      score = 0;
+      gameStarted = false;
+      gameOver = false;
+      scoreNum.textContent = "0";
+      restartBtn.style.display = "none";
+      draw();
+    }
+
+    function flap() {
+      if (!corgi.alive) return;
+      corgi.vy = -6.6;
+      corgi.flapAnim = 0;
+      if (flapSound) {
+        flapSound.currentTime = 0;
+        flapSound.play();
+      }
+      gameStarted = true;
+    }
+
+    function update() {
+      tick++;
+      if (!gameStarted) { draw(); requestAnimationFrame(update); return; }
+
+      // Corgi physics
+      corgi.vy += corgi.ay;
+      corgi.y += corgi.vy;
+      corgi.flapAnim += 0.13;
+
+      // Pipes
+      if (tick % 80 === 0) {
+        let gapY = 80 + Math.random()*(H-220);
+        let gapH = 112 + Math.random()*36;
+        pipes.push({x: W+2, gapY, gapH, passed: false});
+      }
+      pipes.forEach(pipe => { pipe.x -= 2.5; });
+
+      // Remove old pipes
+      pipes = pipes.filter(pipe => pipe.x > -60);
+
+      // Collision
+      pipes.forEach(pipe => {
+        if (!pipe.passed && pipe.x + 55 < corgi.x) {
+          score++;
+          scoreNum.textContent = score;
+          pipe.passed = true;
+        }
+        // Check for collision with corgi
+        if (
+          corgi.x + 22 > pipe.x && corgi.x - 22 < pipe.x + 55 &&
+          (corgi.y - 11 < pipe.gapY || corgi.y + 13 > pipe.gapY + pipe.gapH)
+        ) {
+          corgi.alive = false;
+        }
+      });
+
+      // Out of bounds
+      if (corgi.y > H-20 || corgi.y < 0) {
+        corgi.alive = false;
+      }
+
+      if (!corgi.alive && !gameOver) {
+        gameOver = true;
+        restartBtn.style.display = "inline-block";
+        if (score > bestScore) bestScore = score;
+      }
+
+      draw();
+      if (corgi.alive) requestAnimationFrame(update);
+    }
+
+    function draw() {
+      // BG
+      ctx.clearRect(0,0,W,H);
+      // Sky
+      let grad = ctx.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0, "#eaf7ff");
+      grad.addColorStop(1, "#fffbe8");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+
+      // Pastel clouds
+      for(let i=0;i<10;i++) {
+        ctx.save();
+        ctx.globalAlpha = 0.18 + 0.09*Math.sin(tick*0.01+i);
+        ctx.beginPath();
+        ctx.ellipse(60+i*40+Math.sin(tick*0.012+i)*8, 70+i*20-(i%3)*40, 44-(i%3)*9, 18+(i%4)*6, 0, 0, 2*Math.PI);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Pipes
+      pipes.forEach(pipe => drawPipe(pipe.x, pipe.gapY, pipe.gapH));
+
+      // Corgi
+      drawCorgi(corgi.x, corgi.y, corgi.vy, corgi.flapAnim);
+
+      // Ground
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, H-24, W, 24);
+      ctx.fillStyle = "#f6dcea";
+      ctx.fill();
+      ctx.restore();
+
+      // Score
+      ctx.save();
+      ctx.font = "bold 1.8em Fredoka One, cursive";
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#b78ee2";
+      ctx.lineWidth = 2;
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#b6a6f4";
+      ctx.shadowBlur = 5;
+      if (!gameStarted) {
+        ctx.fillText("Tap or Press Space/↑ to Start", W/2, H/2 - 24);
+      }
+      if (gameOver) {
+        ctx.fillStyle = "#b78ee2";
+        ctx.shadowBlur = 0;
+        ctx.strokeText("Game Over!", W/2, H/2 - 24);
+        ctx.fillText("Game Over!", W/2, H/2 - 24);
+        ctx.font = "bold 1.25em Fredoka One, cursive";
+        ctx.fillText("Best: " + bestScore, W/2, H/2 + 6);
+      }
+      ctx.restore();
+    }
+
+    // Input
+    canvas.addEventListener('pointerdown', flap);
+    document.addEventListener('keydown', function(e){
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        flap();
+      }
+    });
+    restartBtn.onclick = resetGame;
+
+    // Load sound (optional, will silently fail if not supported)
+    try {
+      flapSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8e3e.mp3");
+      flapSound.volume = 0.15;
+    } catch (e) {}
+
+    // Start the game loop
+    resetGame();
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flappy Corgi - Cloud Pals Mini Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One|Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(180deg, #eaf7ff 0%, #ffe6fa 100%);
+      font-family: "Quicksand", "Fredoka One", cursive, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #685170;
+      overflow-x: hidden;
+    }
+    #glitter-bar {
+      width: 100vw;
+      min-height: 58px;
+      padding: 0.5rem 0 0.5rem 0;
+      background: linear-gradient(90deg, #f6e6fa 0%, #c6e6fa 100%);
+      box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vw;
+      border-bottom: 2.5px dashed #e7c0f7;
+      overflow-x: auto;
+      animation: glitterfade 2.4s linear infinite;
+      user-select: none;
+    }
+    @keyframes glitterfade {
+      0% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+      50% { box-shadow: 0 2px 16px #f3e6ffbb, 0 0 28px #ffe6ffcc;}
+      100% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+    }
+    .sparkle {
+      color: #ffcdfa;
+      font-size: 1.6em;
+      filter: drop-shadow(0 0 6px #fff5);
+      margin-right: 0.6em;
+      animation: sparkle-flicker 1.3s infinite alternate;
+    }
+    .sparkle2 {
+      color: #bedeff;
+      font-size: 1.2em;
+      filter: drop-shadow(0 0 6px #fff9);
+      margin-left: 0.45em;
+      animation: sparkle-flicker2 1.7s infinite alternate;
+    }
+    @keyframes sparkle-flicker {
+      0%, 100% { opacity: 1; transform: scale(1);}
+      30% { opacity: 0.6; transform: scale(0.98);}
+      60% { opacity: 0.86; transform: scale(1.12);}
+    }
+    @keyframes sparkle-flicker2 {
+      0%, 100% { opacity: 0.8; }
+      45% { opacity: 1; }
+      70% { opacity: 0.4; }
+    }
+    .glitter-menu {
+      display: flex;
+      gap: 1.6em;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .glitter-link {
+      text-decoration: none;
+      color: #b78ee2;
+      background: linear-gradient(90deg, #fffbe8 0%, #ffe6fa 100%);
+      font-family: "Fredoka One", cursive;
+      font-weight: 600;
+      font-size: 1.1em;
+      border-radius: 1.6em;
+      padding: 0.43em 1.5em;
+      margin: 0 2px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 10px #e7c0f726;
+      border: 1.5px solid #e7c0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      position: relative;
+    }
+    .glitter-link:hover, .glitter-link.active {
+      background: linear-gradient(90deg, #ffe6fa 0%, #b6e3ff 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px #b6e6ff55;
+      border-color: #b6e6ff;
+      text-decoration: underline;
+    }
+    .menu-mute {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      font-family: "Fredoka One", cursive;
+      color: #b78ee2;
+      cursor: pointer;
+      margin-left: 0.8em;
+      margin-right: 0.8em;
+      padding: 0.2em 0.5em;
+      background: rgba(255,255,255,0.7);
+      border-radius: 1.3em;
+      box-shadow: 0 1.5px 4px #b6e6ff33;
+      transition: background 0.15s, color 0.13s;
+      display: flex;
+      align-items: center;
+      gap: 0.1em;
+    }
+    .menu-mute.active, .menu-mute:hover {
+      color: #e36ba4;
+      background: #ffe8fa;
+    }
+    #music-audio { display: none; }
+    #game-container {
+      margin: 100px auto 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 600px;
+    }
+    #flappy-canvas {
+      background: linear-gradient(180deg, #eaf7ff 0%, #fffbe8 100%);
+      border-radius: 2.5rem;
+      box-shadow: 0 8px 32px #b6a6f4b2;
+      margin: 0 auto;
+      display: block;
+      width: 400px;
+      height: 560px;
+      max-width: 97vw;
+      outline: none;
+      border: 1.5px solid #e7c0f7;
+    }
+    #flappy-title {
+      font-family: "Fredoka One", cursive;
+      font-size: 2.1rem;
+      color: #b78ee2;
+      margin-bottom: 0.5em;
+      margin-top: 1.3em;
+      text-shadow: 0 2px 12px #fff6, 0 0 4px #fff;
+      letter-spacing: 0.04em;
+    }
+    #score {
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.25rem;
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      letter-spacing:0.06em;
+    }
+    #flappy-instructions {
+      color: #a682cc;
+      font-size: 1.08em;
+      margin-bottom: 0.6em;
+      margin-top: 0.5em;
+      font-family: "Quicksand", sans-serif;
+    }
+    #restart-btn {
+      display: none;
+      margin-top: 1.3em;
+      background: linear-gradient(90deg, #ffd6fa 0%, #b6e3ff 100%);
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.2em;
+      border: 2px solid #e7c0f7;
+      border-radius: 2em;
+      padding: 0.5em 2em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .19s, color .19s, transform .12s;
+    }
+    #restart-btn:hover {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.05);
+    }
+    @media (max-width: 600px) {
+      #glitter-bar {flex-direction: column; gap: 0.7em;}
+      .glitter-menu {flex-wrap: wrap; gap: 0.7em;}
+      #game-container {margin-top: 80px;}
+      #flappy-title {font-size: 1.35rem;}
+      #flappy-canvas {width: 99vw; height: 62vw; min-height:340px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Glittering menu bar -->
+  <div id="glitter-bar">
+    <span class="sparkle">✧</span>
+    <nav class="glitter-menu">
+      <a class="glitter-link" href="cloud-pals-painting.html" title="Sky Painter"><span>🖌️</span>Sky Painter</a>
+      <a class="glitter-link active" href="flappy-corgi.html" id="goto-flappy" title="Corgi Flight"><span>🐾</span>Flappy Corgi</a>
+      <a class="glitter-link" href="#" id="goto-side" title="Side Scroller"><span>🚶‍♂️</span>Little Side Stroll</a>
+      <button class="menu-mute" id="music-toggle-btn" title="Mute/Play Music"><span id="music-toggle-icon">🔈</span>Music</button>
+    </nav>
+    <span class="sparkle2">✦</span>
+  </div>
+  <div id="game-container">
+    <div id="flappy-title">Flappy Corgi</div>
+    <div id="flappy-instructions">Click/tap or press space/↑ to jump! Avoid the pipes!</div>
+    <canvas id="flappy-canvas" width="400" height="560" tabindex="0"></canvas>
+    <div id="score">Score: <span id="score-num">0</span></div>
+    <button id="restart-btn">Restart</button>
+  </div>
+  <!-- Background music -->
+  <audio id="music-audio" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_127b9e7ce2.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    // --- Glitter bar menu music logic ---
+    const musicAudio = document.getElementById('music-audio');
+    const musicBtn = document.getElementById('music-toggle-btn');
+    const musicIcon = document.getElementById('music-toggle-icon');
+    let musicOn = false;
+    function setMusic(on) {
+      if(on){
+        musicAudio.volume = 0.28;
+        musicAudio.play();
+        musicBtn.classList.add('active');
+        musicIcon.textContent = "🔊";
+      }else{
+        musicAudio.pause();
+        musicBtn.classList.remove('active');
+        musicIcon.textContent = "🔈";
+      }
+      musicOn = on;
+    }
+    musicBtn.onclick = function(){
+      setMusic(!musicOn);
+    };
+    // Autoplay music if not blocked
+    window.addEventListener('DOMContentLoaded', ()=>{
+      setTimeout(()=>{setMusic(true)},400);
+    });
+
+    // --- Glitter bar menu navigation (side scroller stub) ---
+    document.getElementById('goto-side').onclick = function(e){
+      e.preventDefault();
+      alert("Little Side Stroll: Coming soon! 🚶‍♂️\n(You’ll play as a little person on a side-scrolling adventure!)");
+    };
+
+    // --- Flappy Corgi Game Logic ---
+    const canvas = document.getElementById('flappy-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // Corgi sprite (cute & simple, drawn with code)
+    function drawCorgi(x, y, vy, flapAnim) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Shadow
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.ellipse(0, 36, 32, 10, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#b6a6f4";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 32, 22, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#fff7e5";
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.stroke();
+
+      // White belly
+      ctx.beginPath();
+      ctx.ellipse(6, 10, 16, 9, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff7e5";
+      ctx.fill();
+
+      // Face
+      ctx.beginPath();
+      ctx.ellipse(18, -8, 13, 11, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Left ear
+      ctx.save();
+      ctx.rotate(-0.4);
+      ctx.beginPath();
+      ctx.ellipse(-3, -21, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      // Right ear
+      ctx.save();
+      ctx.rotate(0.32);
+      ctx.beginPath();
+      ctx.ellipse(28, -19, 7, 12, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = "#f9c87d";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.3;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(22, -10, 2.4, 0, 2 * Math.PI);
+      ctx.arc(14, -10, 2.4, 0, 2 * Math.PI);
+      ctx.fillStyle = "#533210";
+      ctx.fill();
+      // Eye highlights
+      ctx.beginPath();
+      ctx.arc(22.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.arc(14.7, -11, 0.7, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+
+      // Blush
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.ellipse(23.7, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.ellipse(12.3, -6.5, 3, 1.4, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#e56bb6";
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Mouth
+      ctx.beginPath();
+      ctx.moveTo(18, -3);
+      ctx.quadraticCurveTo(18, 0, 20, 0);
+      ctx.strokeStyle = "#bc8442";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Nose
+      ctx.beginPath();
+      ctx.arc(18.8, -6.5, 1.2, 0, 2 * Math.PI);
+      ctx.fillStyle = "#4a2d13";
+      ctx.fill();
+
+      // Front paws
+      ctx.save();
+      ctx.rotate(0.08);
+      ctx.beginPath();
+      ctx.ellipse(18, 19, 5, 6.2, 0.2, 0, 2 * Math.PI);
+      ctx.ellipse(-2, 18, 5, 6.2, -0.14, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Back paws
+      ctx.save();
+      ctx.rotate(-0.1);
+      ctx.beginPath();
+      ctx.ellipse(-12, 11, 4, 6.1, -0.12, 0, 2 * Math.PI);
+      ctx.ellipse(9, 28, 4, 6.1, 0.12, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fde6b2";
+      ctx.strokeStyle = "#d48c3d";
+      ctx.lineWidth = 1.1;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Flap (tail)
+      ctx.save();
+      ctx.rotate(0.15);
+      ctx.globalAlpha = 0.71 + 0.24*Math.sin(flapAnim*2.5);
+      ctx.beginPath();
+      ctx.moveTo(-32, 8);
+      ctx.quadraticCurveTo(-40, 18 + Math.sin(flapAnim*6)*2, -20, 16 + Math.cos(flapAnim*4)*2);
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = "#fff7e5";
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // Pipe
+    function drawPipe(x, gapY, gapH) {
+      ctx.save();
+      ctx.strokeStyle = "#b6e3ff";
+      ctx.lineWidth = 2.2;
+      ctx.shadowColor = "#b6e3ff";
+      ctx.shadowBlur = 1.8;
+      // Top pipe
+      ctx.fillStyle = "#b6e3ff";
+      ctx.beginPath();
+      ctx.rect(x, 0, 55, gapY);
+      ctx.fill();
+      ctx.stroke();
+      // Bottom pipe
+      ctx.beginPath();
+      ctx.rect(x, gapY + gapH, 55, H - (gapY + gapH));
+      ctx.fill();
+      ctx.stroke();
+      // Pipe Shine
+      ctx.globalAlpha = 0.19;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x + 5, 10, 9, gapY - 10);
+      ctx.fillRect(x + 5, gapY + gapH + 10, 9, H - (gapY + gapH + 20));
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // Game State
+    let corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+    let pipes = [];
+    let score = 0, bestScore = 0;
+    let tick = 0, gameStarted = false, gameOver = false;
+    let restartBtn = document.getElementById('restart-btn');
+    let scoreNum = document.getElementById('score-num');
+    let flapSound = null;
+
+    function resetGame() {
+      corgi = { x: 80, y: H/2, vy: 0, ay: 0.38, alive: true, flapAnim: 0 };
+      pipes = [];
+      tick = 0;
+      score = 0;
+      gameStarted = false;
+      gameOver = false;
+      scoreNum.textContent = "0";
+      restartBtn.style.display = "none";
+      draw();
+    }
+
+    function flap() {
+      if (!corgi.alive) return;
+      corgi.vy = -6.6;
+      corgi.flapAnim = 0;
+      if (flapSound) {
+        flapSound.currentTime = 0;
+        flapSound.play();
+      }
+      gameStarted = true;
+    }
+
+    function update() {
+      tick++;
+      if (!gameStarted) { draw(); requestAnimationFrame(update); return; }
+
+      // Corgi physics
+      corgi.vy += corgi.ay;
+      corgi.y += corgi.vy;
+      corgi.flapAnim += 0.13;
+
+      // Pipes
+      if (tick % 80 === 0) {
+        let gapY = 80 + Math.random()*(H-220);
+        let gapH = 112 + Math.random()*36;
+        pipes.push({x: W+2, gapY, gapH, passed: false});
+      }
+      pipes.forEach(pipe => { pipe.x -= 2.5; });
+
+      // Remove old pipes
+      pipes = pipes.filter(pipe => pipe.x > -60);
+
+      // Collision
+      pipes.forEach(pipe => {
+        if (!pipe.passed && pipe.x + 55 < corgi.x) {
+          score++;
+          scoreNum.textContent = score;
+          pipe.passed = true;
+        }
+        // Check for collision with corgi
+        if (
+          corgi.x + 22 > pipe.x && corgi.x - 22 < pipe.x + 55 &&
+          (corgi.y - 11 < pipe.gapY || corgi.y + 13 > pipe.gapY + pipe.gapH)
+        ) {
+          corgi.alive = false;
+        }
+      });
+
+      // Out of bounds
+      if (corgi.y > H-20 || corgi.y < 0) {
+        corgi.alive = false;
+      }
+
+      if (!corgi.alive && !gameOver) {
+        gameOver = true;
+        restartBtn.style.display = "inline-block";
+        if (score > bestScore) bestScore = score;
+      }
+
+      draw();
+      if (corgi.alive) requestAnimationFrame(update);
+    }
+
+    function draw() {
+      // BG
+      ctx.clearRect(0,0,W,H);
+      // Sky
+      let grad = ctx.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0, "#eaf7ff");
+      grad.addColorStop(1, "#fffbe8");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+
+      // Pastel clouds
+      for(let i=0;i<10;i++) {
+        ctx.save();
+        ctx.globalAlpha = 0.18 + 0.09*Math.sin(tick*0.01+i);
+        ctx.beginPath();
+        ctx.ellipse(60+i*40+Math.sin(tick*0.012+i)*8, 70+i*20-(i%3)*40, 44-(i%3)*9, 18+(i%4)*6, 0, 0, 2*Math.PI);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Pipes
+      pipes.forEach(pipe => drawPipe(pipe.x, pipe.gapY, pipe.gapH));
+
+      // Corgi
+      drawCorgi(corgi.x, corgi.y, corgi.vy, corgi.flapAnim);
+
+      // Ground
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, H-24, W, 24);
+      ctx.fillStyle = "#f6dcea";
+      ctx.fill();
+      ctx.restore();
+
+      // Score
+      ctx.save();
+      ctx.font = "bold 1.8em Fredoka One, cursive";
+      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#b78ee2";
+      ctx.lineWidth = 2;
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#b6a6f4";
+      ctx.shadowBlur = 5;
+      if (!gameStarted) {
+        ctx.fillText("Tap or Press Space/↑ to Start", W/2, H/2 - 24);
+      }
+      if (gameOver) {
+        ctx.fillStyle = "#b78ee2";
+        ctx.shadowBlur = 0;
+        ctx.strokeText("Game Over!", W/2, H/2 - 24);
+        ctx.fillText("Game Over!", W/2, H/2 - 24);
+        ctx.font = "bold 1.25em Fredoka One, cursive";
+        ctx.fillText("Best: " + bestScore, W/2, H/2 + 6);
+      }
+      ctx.restore();
+    }
+
+    // Input
+    canvas.addEventListener('pointerdown', flap);
+    document.addEventListener('keydown', function(e){
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        flap();
+      }
+    });
+    restartBtn.onclick = resetGame;
+
+    // Load sound (optional, will silently fail if not supported)
+    try {
+      flapSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_115b9e8e3e.mp3");
+      flapSound.volume = 0.15;
+    } catch (e) {}
+
+    // Start the game loop
+    resetGame();
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>

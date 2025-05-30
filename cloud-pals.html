@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cloud Pals: Sky Painter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One|Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(180deg, #f8f5fd 0%, #e7f2ff 100%);
+      font-family: "Quicksand", "Fredoka One", cursive, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #685170;
+      overflow-x: hidden;
+ #avatar-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin-top: 80px;
+      margin-bottom: 2rem;
+      z-index: 10;
+      min-height: 700px;
+    }
+    #avatar-customizer-canvas {
+      background: #fff;
+      border: 2px solid #b78ee2;
+      border-radius: 2rem;
+      box-shadow: 0 4px 24px #dce7ff90;
+      width: 350px;
+      height: 450px;
+      max-width: 98vw;
+      max-height: 70vh;
+      touch-action: none;
+      cursor: grab;
+      position: relative;
+      display: block;
+    }
+    #avatar-parts-bar {
+      display: flex;
+      gap: 1.2em;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      margin: 1.8em auto 1.2em auto;
+      font-size: 1.2em;
+      z-index: 20;
+    }
+    .avatar-part-btn {
+      background: linear-gradient(90deg, #ffe6fa 0%, #d3ebff 100%);
+      border: 2px solid #e8caf9;
+      border-radius: 1.2em;
+      padding: 0.3em 1.1em;
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .2s, color .2s, transform .18s;
+      outline: none;
+      margin-bottom: 0.5em;
+      user-select: none;
+    }
+    .avatar-part-btn:hover, .avatar-part-btn.selected {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.05);
+      border-color: #b78ee2;
+    }
+    #avatar-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1em;
+      margin-bottom: 1.2em;
+    }
+    #avatar-finish-btn {
+      background: #b6e3ff;
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      border-radius: 1.2em;
+      padding: 0.4em 1.5em;
+      border: 2px solid #b78ee2;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #b6e6ff44;
+      font-size: 1.1em;
+      margin-left: 1em;
+      margin-bottom: 1em;
+      margin-top: 0.5em;
+    }
+    #avatar-finish-btn:hover {
+      background: #ffd6fa;
+      color: #e36ba4;
+    }
+    #avatar-tip {
+      text-align: center;
+      color: #b78ee2;
+      font-size: 1em;
+      margin-top: 0.4em;
+      margin-bottom: 0.4em;
+    }
+  </style>
+</head>
+<body>
+  <!-- ... existing menu bar ... -->
+  <div id="glitter-bar">
+    <span class="sparkle">✧</span>
+    <nav class="glitter-menu">
+  <<a class="glitter-link active" href="#" id="goto-painter" title="Sky Painter"><span>🖌️</span>Sky Painter</a>
+      <a class="glitter-link" href="#" id="goto-avatar" title="Avatar Customizer"><span>👤</span>Avatar Customizer</a>
+      <a class="glitter-link" href="#" id="goto-flappy" title="Corgi Flight"><span>🐾</span>Flappy Corgi</a>
+      <a class="glitter-link" href="#" id="goto-side" title="Side Scroller"><span>🚶‍♂️</span>Little Side Stroll</a>
+      <button class="menu-mute" id="music-toggle-btn" title="Mute/Play Music"><span id="music-toggle-icon">🔈</span>Music</button>
+    </nav>
+    <span class="sparkle2">✦</span>/div>
+  <h1 id="page-title">Cloud Pals: Sky Painter</h1>
+  <div id="avatar-area">
+    <div id="avatar-parts-bar">
+      <button class="avatar-part-btn" data-part="glasses">👓 Glasses</button>
+      <button class="avatar-part-btn" data-part="roundglasses">🤓 Round Glasses</button>
+      <button class="avatar-part-btn" data-part="blush">💕 Blush</button>
+      <button class="avatar-part-btn" data-part="longhairbrown">💇‍♀️ Brown Hair</button>
+      <button class="avatar-part-btn" data-part="longhairpink">🎀 Pink Hair</button>
+      <button class="avatar-part-btn" data-part="pigtails">👧 Pigtails</button>
+      <button class="avatar-part-btn" data-part="cat">😺 Cat Ears</button>
+      <button class="avatar-part-btn" data-part="bear">🐻 Bear Ears</button>
+      <button class="avatar-part-btn" data-part="hat">🎩 Top Hat</button>
+      <button class="avatar-part-btn" data-part="ribbon">🎀 Ribbon</button>
+    </div>
+    <canvas id="avatar-customizer-canvas" width="350" height="450"></canvas>
+    <div id="avatar-controls">
+      <button id="avatar-finish-btn">Download Avatar</button>
+    </div>
+    <div id="avatar-tip">Tip: Tap/click a part to add, then drag or pinch/scroll to move/resize.</div>
+  </div>
+    }
+    h1 {
+      text-align: center;
+      margin-top: 1.4rem;
+      font-family: "Fredoka One", cursive;
+      font-size: 2.5rem;
+      color: #b78ee2;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 12px #fff6, 0 0 4px #fff;
+    }
+    #glitter-bar {
+      width: 100vw;
+      min-height: 58px;
+      padding: 0.5rem 0 0.5rem 0;
+      background: linear-gradient(90deg, #f6e6fa 0%, #c6e6fa 100%);
+      box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5vw;
+      border-bottom: 2.5px dashed #e7c0f7;
+      overflow-x: auto;
+      animation: glitterfade 2.4s linear infinite;
+      user-select: none;
+    }
+    @keyframes glitterfade {
+      0% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+      50% { box-shadow: 0 2px 16px #f3e6ffbb, 0 0 28px #ffe6ffcc;}
+      100% { box-shadow: 0 2px 12px #eed6ff88, 0 0 20px #ffebfa88;}
+    }
+    .sparkle {
+      color: #ffcdfa;
+      font-size: 1.6em;
+      filter: drop-shadow(0 0 6px #fff5);
+      margin-right: 0.6em;
+      animation: sparkle-flicker 1.3s infinite alternate;
+    }
+    .sparkle2 {
+      color: #bedeff;
+      font-size: 1.2em;
+      filter: drop-shadow(0 0 6px #fff9);
+      margin-left: 0.45em;
+      animation: sparkle-flicker2 1.7s infinite alternate;
+    }
+    @keyframes sparkle-flicker {
+      0%, 100% { opacity: 1; transform: scale(1);}
+      30% { opacity: 0.6; transform: scale(0.98);}
+      60% { opacity: 0.86; transform: scale(1.12);}
+    }
+    @keyframes sparkle-flicker2 {
+      0%, 100% { opacity: 0.8; }
+      45% { opacity: 1; }
+      70% { opacity: 0.4; }
+    }
+    .glitter-menu {
+      display: flex;
+      gap: 1.6em;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .glitter-link {
+      text-decoration: none;
+      color: #b78ee2;
+      background: linear-gradient(90deg, #fffbe8 0%, #ffe6fa 100%);
+      font-family: "Fredoka One", cursive;
+      font-weight: 600;
+      font-size: 1.1em;
+      border-radius: 1.6em;
+      padding: 0.43em 1.5em;
+      margin: 0 2px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 10px #e7c0f726;
+      border: 1.5px solid #e7c0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      position: relative;
+    }
+    .glitter-link:hover, .glitter-link.active {
+      background: linear-gradient(90deg, #ffe6fa 0%, #b6e3ff 100%);
+      color: #fff;
+      box-shadow: 0 4px 18px #b6e6ff55;
+      border-color: #b6e6ff;
+      text-decoration: underline;
+    }
+    .menu-mute {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      font-family: "Fredoka One", cursive;
+      color: #b78ee2;
+      cursor: pointer;
+      margin-left: 0.8em;
+      margin-right: 0.8em;
+      padding: 0.2em 0.5em;
+      background: rgba(255,255,255,0.7);
+      border-radius: 1.3em;
+      box-shadow: 0 1.5px 4px #b6e6ff33;
+      transition: background 0.15s, color 0.13s;
+      display: flex;
+      align-items: center;
+      gap: 0.1em;
+    }
+    .menu-mute.active, .menu-mute:hover {
+      color: #e36ba4;
+      background: #ffe8fa;
+    }
+    #music-audio { display: none; }
+    #game-area { margin-top: 74px; }
+    @media (max-width: 900px) {
+      #glitter-bar { gap: 1.2vw; }
+      .glitter-link { font-size: 0.97em; padding: 0.38em 1.1em; }
+      #game-area { margin-top: 78px; }
+    }
+    @media (max-width: 700px) {
+      #game-area {padding: 0.8rem 0.2rem;}
+      #glitter-bar { flex-direction: column; gap: 0.7em;}
+      .glitter-menu { flex-wrap: wrap; gap: 0.7em;}
+    }
+    #paint-bg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      border-radius: 2.5rem;
+    }
+    #paint-canvas {
+      display: block;
+      background: transparent;
+      margin: 0 auto;
+      border-radius: 2rem;
+      box-shadow: 0 4px 24px #dce7ff90;
+      z-index: 1;
+      position: relative;
+      cursor: crosshair;
+      outline: none;
+    }
+    #tools {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2rem;
+      margin: 2rem 0 1rem 0;
+      z-index: 3;
+      position:relative;
+    }
+    .tool-btn {
+      padding: 0.6em 1.1em;
+      background: linear-gradient(90deg, #ffe6fa 0%, #d3ebff 100%);
+      border: 2px solid #e8caf9;
+      border-radius: 2em;
+      font-size: 1.11em;
+      color: #b78ee2;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .2s, color .2s, transform .18s;
+      outline: none;
+      margin-bottom: 0.7em;
+      font-family: "Fredoka One", cursive;
+      user-select: none;
+    }
+    .tool-btn.selected, .tool-btn:hover {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.08);
+      border-color: #b78ee2;
+    }
+    #color-picker-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2em;
+      margin-bottom: 1em;
+      margin-top: -1em;
+      font-size: 1.1em;
+      color: #a682cc;
+      font-family: "Fredoka One", cursive;
+      letter-spacing: 0.03em;
+      z-index:3;
+      position:relative;
+    }
+    #color-wheel {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid #b6a6f4;
+      background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+      display: inline-block;
+      cursor: pointer;
+      position: relative;
+      margin-left: 0.4em;
+      margin-right: 0.4em;
+    }
+    #color-picker {
+      width: 34px;
+      height: 34px;
+      opacity: 0;
+      position: absolute;
+      left: 0; top: 0;
+      cursor: pointer;
+    }
+    #selected-color-preview {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2.5px solid #b78ee2;
+      display: inline-block;
+      margin-left: 0.6em;
+      background: #ffb;
+      box-shadow: 0 0 5px #b78ee288;
+    }
+    #brush-size-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      justify-content: center;
+      margin-bottom: 1.2em;
+      margin-top: -0.5em;
+      font-size: 1.1em;
+      color: #a682cc;
+      font-family: "Fredoka One", cursive;
+      letter-spacing: 0.03em;
+      z-index:3;
+      position:relative;
+    }
+    #brush-size { width: 140px; accent-color: #b78ee2; margin: 0 0.4em; }
+    #message {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #b78ee2;
+      min-height: 2.1em;
+      margin-top: 0.7em;
+      letter-spacing:0.07em;
+      z-index: 4;
+      position:relative;
+    }
+    .brush-preview {
+      display:inline-block;
+      vertical-align:middle;
+      margin-right:0.6em;
+    }
+    #flappy-embed-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin-top: 94px;
+      margin-bottom: 2rem;
+      min-height: 600px;
+      z-index: 10;
+    }
+    #flappy-iframe {
+      border: 2.5px solid #e7c0f7;
+      border-radius: 2.5rem;
+      box-shadow: 0 8px 32px #b6a6f4b2;
+      width: 432px;
+      height: 650px;
+      background: #eee;
+      max-width: 98vw;
+      min-width: 270px;
+      min-height: 400px;
+      margin-top: 1em;
+      margin-bottom: 2em;
+      display: block;
+    }
+    #flappy-exit-btn {
+      background: linear-gradient(90deg, #ffd6fa 0%, #b6e3ff 100%);
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.2em;
+      border: 2px solid #e7c0f7;
+      border-radius: 2em;
+      padding: 0.4em 1.8em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #d6b6ff44;
+      transition: background .19s, color .19s, transform .12s;
+      margin-bottom: 1.5em;
+      margin-top: 0.5em;
+    }
+    #flappy-exit-btn:hover {
+      background: linear-gradient(90deg, #b6a6f4 0%, #ffd6fa 100%);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+  </style>
+</head>
+<body>
+  <div id="glitter-bar">
+    <span class="sparkle">✧</span>
+    <nav class="glitter-menu">
+      <a class="glitter-link active" href="#" id="goto-painter" title="Sky Painter"><span>🖌️</span>Sky Painter</a>
+      <a class="glitter-link" href="#" id="goto-flappy" title="Corgi Flight"><span>🐾</span>Flappy Corgi</a>
+      <a class="glitter-link" href="#" id="goto-side" title="Side Scroller"><span>🚶‍♂️</span>Little Side Stroll</a>
+      <button class="menu-mute" id="music-toggle-btn" title="Mute/Play Music"><span id="music-toggle-icon">🔈</span>Music</button>
+    </nav>
+    <span class="sparkle2">✦</span>
+  </div>
+  <h1 id="page-title">Cloud Pals: Sky Painter</h1>
+  <div id="flappy-embed-wrap">
+    <button id="flappy-exit-btn">⟵ Back to Sky Painter</button>
+    <iframe id="flappy-iframe" src="flappy-corgi.html" title="Flappy Corgi" allow="autoplay"></iframe>
+  </div>
+  <div id="game-area" style="min-height:640px;">
+    <svg id="paint-bg" width="100%" height="540" viewBox="0 0 900 540" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="sky" cx="50%" cy="35%" r="90%">
+          <stop offset="0%" stop-color="#fffbe8" />
+          <stop offset="100%" stop-color="#e7f2ff" />
+        </radialGradient>
+      </defs>
+      <rect x="0" y="0" width="900" height="540" fill="url(#sky)" />
+      <ellipse cx="260" cy="520" rx="340" ry="80" fill="#e6f5e6" opacity="0.7"/>
+      <ellipse cx="700" cy="530" rx="300" ry="90" fill="#f6dcea" opacity="0.6"/>
+      <ellipse cx="520" cy="540" rx="200" ry="65" fill="#c9d9f5" opacity="0.5"/>
+      <ellipse cx="180" cy="470" rx="18" ry="45" fill="#c6e2c6" opacity="0.7"/>
+      <ellipse cx="240" cy="500" rx="22" ry="58" fill="#b6dcb6" opacity="0.6"/>
+      <ellipse cx="760" cy="500" rx="15" ry="38" fill="#e5c6f6" opacity="0.6"/>
+      <ellipse cx="690" cy="510" rx="12" ry="32" fill="#c9d9f5" opacity="0.5"/>
+    </svg>
+    <canvas id="paint-canvas" width="900" height="540" tabindex="0" style="width:100%;max-width:900px;height:540px;"></canvas>
+    <div id="tools"></div>
+    <div id="color-picker-wrap">
+      <label for="color-picker">Element Color</label>
+      <span id="color-wheel">
+        <input type="color" id="color-picker" value="#ffbc65" />
+      </span>
+      <span id="selected-color-preview"></span>
+    </div>
+    <div id="brush-size-wrap">
+      Brush Size
+      <input type="range" id="brush-size" min="0.5" max="2.5" step="0.05" value="1.0">
+      <span id="brush-size-label">1.0x</span>
+    </div>
+    <div id="message">Pick a brush and paint the sky with magic!</div>
+  </div>
+  <audio id="music-audio" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_127b9e7ce2.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    // === Canvas & UI Logic ===
+    const canvas = document.getElementById('paint-canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false, lastX = 0, lastY = 0;
+    let currentBrush = 'cloud';
+    let currentColor = "#ffbc65";
+    let brushScale = 1.0;
+
+    const brushes = [
+      {name: 'cloud', label: '☁️ Cloud', func: drawCloud, colorable: true},
+      {name: 'sun', label: '🌞 Sun', func: drawSun, colorable: true},
+      {name: 'moon', label: '🌙 Moon', func: drawMoon, colorable: true},
+      {name: 'rainbow', label: '🌈 Rainbow', func: drawRainbow, colorable: false},
+      {name: 'star', label: '⭐ Star', func: drawStar, colorable: true},
+      {name: 'starburst', label: '✴️ Starburst', func: drawStarburst, colorable: true},
+      {name: 'rain', label: '💧 Rain', func: drawRain, colorable: true},
+      {name: 'wind', label: '💨 Wind', func: drawWind, colorable: true},
+      {name: 'bunny', label: '🐰 Bunny', func: drawBunny, colorable: false},
+      {name: 'deer', label: '🦌 Deer', func: drawDeer, colorable: false},
+      {name: 'kitten', label: '🐱 Kitten', func: drawKitten, colorable: false},
+      {name: 'penguin', label: '🐧 Penguin', func: drawPenguin, colorable: false},
+      {name: 'fox', label: '🦊 Fox', func: drawFox, colorable: false},
+      {name: 'bear', label: '🐻 Bear', func: drawBear, colorable: false},
+      {name: 'frog', label: '🐸 Frog', func: drawFrog, colorable: false},
+      {name: 'heart', label: '💗 Heart', func: drawHeart, colorable: true},
+      {name: 'leaf', label: '🍃 Leaf', func: drawLeaf, colorable: true},
+      {name: 'flower', label: '🌸 Flower', func: drawFlower, colorable: true},
+      {name: 'crystal', label: '🔮 Crystal', func: drawCrystal, colorable: true},
+      {name: 'gem', label: '💎 Gem', func: drawGem, colorable: true},
+      {name: 'tree', label: '🌳 Tree', func: drawTree, colorable: true},
+      {name: 'spark', label: '✨ Spark', func: drawSpark, colorable: true},
+      {name: 'fish', label: '🐟 Fish', func: drawFish, colorable: true},
+      {name: 'swirl', label: '🌀 Swirl', func: drawSwirl, colorable: true},
+      {name: 'erase', label: '⛔ Erase', func: erase, colorable: false},
+{name: 'owl', label: '🦉 Owl', func: drawOwl, colorable: false},
+      {name: 'turtle', label: '🐢 Turtle', func: drawTurtle, colorable: false},
+      {name: 'duck', label: '🦆 Duck', func: drawDuck, colorable: false},
+      {name: 'bee', label: '🐝 Bee', func: drawBee, colorable: false},
+      {name: 'balloon', label: '🎈 Balloon', func: drawBalloon, colorable: true},
+      {name: 'ufo', label: '🛸 UFO', func: drawUFO, colorable: true}
+    ];
+
+    // --- UI ---
+    const toolsDiv = document.getElementById('tools');
+    brushes.forEach(brush => {
+      const btn = document.createElement('button');
+      btn.textContent = brush.label;
+      btn.className = 'tool-btn' + (brush.name===currentBrush?' selected':'');
+      btn.onclick = () => selectBrush(brush.name);
+      btn.id = 'tool-'+brush.name;
+      toolsDiv.appendChild(btn);
+    });
+    function selectBrush(name) {
+      currentBrush = name;
+      document.querySelectorAll('.tool-btn').forEach(btn=>btn.classList.remove('selected'));
+      document.getElementById('tool-'+name).classList.add('selected');
+      const b = brushes.find(b=>b.name===name);
+      document.getElementById('color-picker-wrap').style.display = (b.colorable) ? '' : 'none';
+      showMessage('Picked: '+b.label);
+    }
+
+    document.getElementById('color-picker').oninput = e => {
+      currentColor = e.target.value;
+      document.getElementById('selected-color-preview').style.background = currentColor;
+    };
+    document.getElementById('selected-color-preview').style.background = currentColor;
+
+    document.getElementById('brush-size').oninput = e => {
+      brushScale = Number(e.target.value);
+      document.getElementById('brush-size-label').textContent = brushScale.toFixed(2)+'x';
+    };
+
+    // Drawing events
+    function getXY(e) {
+      let rect = canvas.getBoundingClientRect();
+      if(e.touches) e = e.touches[0];
+      return {
+        x: (e.clientX - rect.left) * (canvas.width/rect.width),
+        y: (e.clientY - rect.top) * (canvas.height/rect.height)
+      };
+    }
+    canvas.addEventListener('pointerdown', e=>{
+      drawing = true;
+      const {x, y} = getXY(e);
+      lastX = x; lastY = y;
+      drawAt(x, y);
+    });
+    canvas.addEventListener('pointermove', e=>{
+      if(!drawing) return;
+      const {x, y} = getXY(e);
+      drawLine(lastX, lastY, x, y);
+      lastX = x; lastY = y;
+    });
+    canvas.addEventListener('pointerup', ()=>drawing=false);
+    canvas.addEventListener('pointerleave', ()=>drawing=false);
+
+    canvas.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      drawing = true;
+      const {x, y} = getXY(e);
+      lastX = x; lastY = y;
+      drawAt(x, y);
+    }, {passive:false});
+    canvas.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      if(!drawing) return;
+      const {x, y} = getXY(e);
+      drawLine(lastX, lastY, x, y);
+      lastX = x; lastY = y;
+    }, {passive:false});
+    canvas.addEventListener('touchend', ()=>drawing=false);
+
+    function drawAt(x, y) {
+      const brush = brushes.find(b=>b.name===currentBrush);
+      brush.func(x, y, brush.colorable);
+    }
+    function drawLine(x0, y0, x1, y1) {
+      const dist = Math.hypot(x1-x0, y1-y0);
+      const steps = Math.ceil(dist/(8*brushScale));
+      for(let i=0;i<=steps;i++) {
+        const t = i/steps;
+        drawAt(x0 + (x1-x0)*t, y0 + (y1-y0)*t);
+      }
+    }
+
+    // Music and navigation
+    let musicAudio = document.getElementById('music-audio');
+    let muted = true;
+    document.getElementById('music-toggle-btn').onclick = ()=>{
+      muted = !muted;
+      musicAudio.muted = muted;
+      if(!muted) musicAudio.play();
+      document.getElementById('music-toggle-icon').textContent = muted ? '🔈' : '🔊';
+      document.getElementById('music-toggle-btn').classList.toggle('active', !muted);
+    };
+
+    document.getElementById('goto-painter').onclick = (e)=>{
+      e.preventDefault();
+      document.getElementById('game-area').style.display = '';
+      document.getElementById('flappy-embed-wrap').style.display = 'none';
+      document.getElementById('page-title').textContent = "Cloud Pals: Sky Painter";
+      document.querySelectorAll('.glitter-link').forEach(btn=>btn.classList.remove('active'));
+      document.getElementById('goto-painter').classList.add('active');
+    };
+    document.getElementById('goto-flappy').onclick = (e)=>{
+      e.preventDefault();
+      document.getElementById('game-area').style.display = 'none';
+      document.getElementById('flappy-embed-wrap').style.display = 'flex';
+      document.getElementById('page-title').textContent = "Cloud Pals: Flappy Corgi";
+      document.querySelectorAll('.glitter-link').forEach(btn=>btn.classList.remove('active'));
+      document.getElementById('goto-flappy').classList.add('active');
+    };
+    document.getElementById('goto-side').onclick = (e)=>{
+      e.preventDefault();
+      showMessage('Coming soon! 🚧');
+      document.querySelectorAll('.glitter-link').forEach(btn=>btn.classList.remove('active'));
+      document.getElementById('goto-side').classList.add('active');
+    };
+    document.getElementById('flappy-exit-btn').onclick = ()=>{
+      document.getElementById('flappy-embed-wrap').style.display = 'none';
+      document.getElementById('game-area').style.display = '';
+      document.getElementById('page-title').textContent = "Cloud Pals: Sky Painter";
+      document.querySelectorAll('.glitter-link').forEach(btn=>btn.classList.remove('active'));
+      document.getElementById('goto-painter').classList.add('active');
+    };
+
+    function showMessage(txt) {
+      document.getElementById("message").textContent = txt;
+    }
+    showMessage("Pick a brush and paint the sky with magic!");
+
+    // === Drawing Functions (ALL) ===
+    // (Paste the full JS draw functions here; see previous "full JS block" message)
+    // ... Due to message size, please scroll up for the full draw functions list ...
+    // Place them here in your file!
+// === Drawing Functions (ALL) ===
+function drawSun(x, y, colorable = true) {
+  let r = (22 + Math.random()*10) * brushScale;
+  let color = colorable ? currentColor : "#FFD700";
+  let g = ctx.createRadialGradient(x, y, 2, x, y, r);
+  g.addColorStop(0, color);
+  g.addColorStop(0.25, color);
+  g.addColorStop(0.5, "#ffebb1");
+  g.addColorStop(1, "rgba(255,255,220,0)");
+  ctx.save();
+  ctx.globalAlpha = 0.97;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 2*Math.PI);
+  ctx.closePath();
+  ctx.fillStyle = g;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 16;
+  ctx.fill();
+  ctx.restore();
+}
+function drawCloud(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#fff";
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 26*brushScale, 16*brushScale, 0, 0, 2*Math.PI);
+  ctx.ellipse(x-16*brushScale, y+6*brushScale, 15*brushScale, 13*brushScale, 0, 0, 2*Math.PI);
+  ctx.ellipse(x+16*brushScale, y+6*brushScale, 13*brushScale, 10*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 11*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawRain(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#88c8fc";
+  ctx.save();
+  ctx.globalAlpha = 0.7 + 0.2*Math.random();
+  ctx.beginPath();
+  ctx.ellipse(x, y, 5*brushScale, (12+Math.random()*5)*brushScale, Math.PI/8, 0, 2*Math.PI);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+  ctx.fill();
+  ctx.restore();
+}
+function drawWind(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#b6e3ff";
+  ctx.save();
+  ctx.globalAlpha = 0.55 + 0.18*Math.random();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = (3.5 + Math.random()*2.5) * brushScale;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x+12*brushScale, y-8*brushScale, x+28*brushScale, y+7*brushScale, x+36*brushScale+Math.random()*10, y-11*brushScale+Math.random()*15);
+  ctx.stroke();
+  ctx.restore();
+}
+function drawStar(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#ffe64c";
+  ctx.save();
+  ctx.globalAlpha = 0.8 + 0.2*Math.random();
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  const outer = 10 * brushScale;
+  const inner = 4 * brushScale;
+  for(let i=0;i<5;i++) {
+    let angle = (Math.PI*2/5)*i;
+    ctx.lineTo(x + Math.cos(angle)*outer, y + Math.sin(angle)*outer);
+    angle += Math.PI/5;
+    ctx.lineTo(x + Math.cos(angle)*inner, y + Math.sin(angle)*inner);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+function drawRainbow(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.8;
+  const rainbowColors = ["#FF5F6D","#FFC371","#FFF56F","#A8FF78","#47C9E5"];
+  for(let i=0;i<5;i++) {
+    ctx.beginPath();
+    ctx.strokeStyle = rainbowColors[i];
+    ctx.lineWidth = (8-1.1*i)*brushScale;
+    ctx.arc(x, y, (16+6*i)*brushScale, Math.PI*1.12, Math.PI*1.88);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawStarburst(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#fff3b8";
+  ctx.save();
+  ctx.globalAlpha = 0.88;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.7*brushScale;
+  for(let i=0;i<8;i++) {
+    let angle = (Math.PI*2/8)*i;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x+Math.cos(angle)*19*brushScale, y+Math.sin(angle)*19*brushScale);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(x, y, 8*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawMoon(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#fffde6";
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  ctx.beginPath();
+  ctx.arc(x, y, 18*brushScale, Math.PI*1.15, Math.PI*2.85, false);
+  ctx.arc(x+4*brushScale, y, 13*brushScale, Math.PI*2.85, Math.PI*1.15, true);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.shadowColor = "#fff";
+  ctx.shadowBlur = 10*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawHeart(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#ffb6d5";
+  ctx.save();
+  ctx.globalAlpha = 0.93;
+  ctx.beginPath();
+  ctx.moveTo(x, y+6*brushScale);
+  ctx.bezierCurveTo(x-15*brushScale, y-14*brushScale, x+15*brushScale, y-14*brushScale, x, y+6*brushScale);
+  ctx.bezierCurveTo(x-12*brushScale, y-2*brushScale, x-13*brushScale, y+11*brushScale, x, y+19*brushScale);
+  ctx.bezierCurveTo(x+13*brushScale, y+11*brushScale, x+12*brushScale, y-2*brushScale, x, y+6*brushScale);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.shadowColor = "#ffb6d5";
+  ctx.shadowBlur = 10*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawLeaf(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#8cce6a";
+  ctx.save();
+  ctx.globalAlpha = 0.93;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x+8*brushScale, y-12*brushScale, x+16*brushScale, y+9*brushScale, x, y+22*brushScale);
+  ctx.bezierCurveTo(x-16*brushScale, y+9*brushScale, x-8*brushScale, y-12*brushScale, x, y);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawFlower(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#eeb0ef";
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  for(let i=0;i<6;i++) {
+    ctx.beginPath();
+    let angle = (Math.PI*2/6)*i;
+    ctx.ellipse(x + Math.cos(angle)*10*brushScale, y + Math.sin(angle)*10*brushScale, 5*brushScale, 11*brushScale, angle, 0, 2*Math.PI);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(x, y, 6*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff7b8";
+  ctx.shadowColor = "#fff7b8";
+  ctx.shadowBlur = 10*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawCrystal(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#b9e2fc";
+  ctx.save();
+  ctx.globalAlpha = 0.94;
+  ctx.beginPath();
+  ctx.moveTo(x, y-15*brushScale);
+  ctx.lineTo(x+7*brushScale, y+8*brushScale);
+  ctx.lineTo(x, y+15*brushScale);
+  ctx.lineTo(x-7*brushScale, y+8*brushScale);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawGem(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#a0e6df";
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  ctx.beginPath();
+  ctx.moveTo(x, y-13*brushScale);
+  ctx.lineTo(x+10*brushScale, y-3*brushScale);
+  ctx.lineTo(x+7*brushScale, y+13*brushScale);
+  ctx.lineTo(x-7*brushScale, y+13*brushScale);
+  ctx.lineTo(x-10*brushScale, y-3*brushScale);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 7*brushScale;
+  ctx.fill();
+  ctx.restore();
+}
+function drawTree(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#8cce6a";
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 15*brushScale, 20*brushScale, 0, 0, 2*Math.PI);
+  ctx.ellipse(x-16*brushScale, y+8*brushScale, 13*brushScale, 18*brushScale, 0, 0, 2*Math.PI);
+  ctx.ellipse(x+16*brushScale, y+8*brushScale, 13*brushScale, 18*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8*brushScale;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.rect(x-5*brushScale, y+18*brushScale, 10*brushScale, 22*brushScale);
+  ctx.fillStyle = "#cfa66b";
+  ctx.shadowBlur = 0;
+  ctx.fill();
+  ctx.restore();
+}
+function drawSpark(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#fff8c0";
+  ctx.save();
+  ctx.globalAlpha = 0.8 + 0.18*Math.random();
+  ctx.beginPath();
+  ctx.moveTo(x, y-10*brushScale);
+  ctx.lineTo(x, y+10*brushScale);
+  ctx.moveTo(x-10*brushScale, y);
+  ctx.lineTo(x+10*brushScale, y);
+  ctx.moveTo(x-7*brushScale, y-7*brushScale);
+  ctx.lineTo(x+7*brushScale, y+7*brushScale);
+  ctx.moveTo(x-7*brushScale, y+7*brushScale);
+  ctx.lineTo(x+7*brushScale, y-7*brushScale);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2*brushScale;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8*brushScale;
+  ctx.stroke();
+  ctx.restore();
+}
+function drawFish(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#86c5ff";
+  ctx.save();
+  ctx.globalAlpha = 0.93;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 14*brushScale, 7*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8*brushScale;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x-13*brushScale, y);
+  ctx.lineTo(x-21*brushScale, y-6*brushScale);
+  ctx.lineTo(x-21*brushScale, y+6*brushScale);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+7*brushScale, y-2*brushScale, 1.8*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.fill();
+  ctx.restore();
+}
+function drawSwirl(x, y, colorable = true) {
+  let color = colorable ? currentColor : "#b9e2fc";
+  ctx.save();
+  ctx.globalAlpha = 0.87;
+  ctx.beginPath();
+  let a = Math.random()*Math.PI*2;
+  for(let i=0;i<24;i++) {
+    let r = (i/2)*brushScale;
+    ctx.lineTo(x + Math.cos(a+i/4)*r*4, y + Math.sin(a+i/4)*r*4);
+  }
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3*brushScale;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 6*brushScale;
+  ctx.stroke();
+  ctx.restore();
+}
+function drawBunny(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 15*brushScale, 13*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.shadowColor = "#fff";
+  ctx.shadowBlur = 10;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x-7*brushScale, y-19*brushScale, 5*brushScale, 16*brushScale, -0.15, 0, 2*Math.PI);
+  ctx.ellipse(x+7*brushScale, y-19*brushScale, 5*brushScale, 16*brushScale, 0.15, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-5*brushScale, y-3*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+5*brushScale, y-3*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y+2*brushScale, 1.3*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#eab3c1";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x, y+3*brushScale);
+  ctx.lineTo(x, y+6*brushScale);
+  ctx.moveTo(x, y+6*brushScale);
+  ctx.arc(x-1*brushScale, y+6*brushScale, 1*brushScale, 0, Math.PI, false);
+  ctx.moveTo(x, y+6*brushScale);
+  ctx.arc(x+1*brushScale, y+6*brushScale, 1*brushScale, 0, Math.PI, false);
+  ctx.strokeStyle = "#eab3c1";
+  ctx.lineWidth = 1*brushScale;
+  ctx.stroke();
+  ctx.restore();
+}
+function drawDeer(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.98;
+  ctx.beginPath();
+  ctx.ellipse(x, y+26*brushScale, 22*brushScale, 28*brushScale, Math.PI/12, 0, 2*Math.PI);
+  ctx.fillStyle = "#eec796";
+  ctx.shadowColor = "#eec796";
+  ctx.shadowBlur = 11*brushScale;
+  ctx.fill();
+  ctx.globalAlpha = 0.83;
+  ctx.beginPath();
+  ctx.ellipse(x+8*brushScale, y, 6*brushScale, 18*brushScale, Math.PI/7, 0, 2*Math.PI);
+  ctx.fillStyle = "#eec796";
+  ctx.fill();
+  ctx.globalAlpha = 1.0;
+  ctx.beginPath();
+  ctx.ellipse(x+15*brushScale, y-14*brushScale, 10*brushScale, 11*brushScale, Math.PI/12, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff9f0";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+19*brushScale, y-16*brushScale, 2.3*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.shadowBlur = 0;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+20.2*brushScale, y-17.5*brushScale, 0.7*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x+23*brushScale, y-11*brushScale, 1.2*brushScale, 1.7*brushScale, Math.PI/7, 0, 2*Math.PI);
+  ctx.fillStyle = "#473b31";
+  ctx.fill();
+  ctx.globalAlpha = 0.82;
+  for (let i=0;i<4;i++) {
+    ctx.beginPath();
+    ctx.arc(x+10*brushScale+i*4*brushScale, y+19*brushScale+Math.random()*2*brushScale, 1.2*brushScale, 0, 2*Math.PI);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+  }
+  ctx.globalAlpha = 0.62;
+  ctx.beginPath();
+  ctx.ellipse(x-18*brushScale, y+20*brushScale, 6*brushScale, 5*brushScale, Math.PI/7, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.globalAlpha = 1.0;
+  ctx.lineCap = "round";
+  function leg(lx, ly, angle, len) {
+    ctx.save();
+    ctx.translate(x+lx*brushScale, y+ly*brushScale);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(0,len*brushScale);
+    ctx.strokeStyle = "#eec796";
+    ctx.lineWidth = 6*brushScale;
+    ctx.shadowColor = "#eec796";
+    ctx.shadowBlur = 2*brushScale;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, len*brushScale, 2.1*brushScale, 0, Math.PI, false);
+    ctx.lineWidth = 2.3*brushScale;
+    ctx.strokeStyle = "#473b31";
+    ctx.stroke();
+    ctx.restore();
+  }
+  leg(-9, 30, 0.16, 38);
+  leg(-2, 32, -0.07, 43);
+  leg(10, 32, 0.06, 35);
+  leg(16, 30, -0.10, 41);
+  ctx.restore();
+}
+function drawKitten(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 13*brushScale, 11*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff7e2";
+  ctx.shadowColor = "#fff7e2";
+  ctx.shadowBlur = 10;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x-7*brushScale, y-12*brushScale);
+  ctx.lineTo(x-11*brushScale, y-24*brushScale);
+  ctx.lineTo(x-3*brushScale, y-17*brushScale);
+  ctx.closePath();
+  ctx.moveTo(x+7*brushScale, y-12*brushScale);
+  ctx.lineTo(x+11*brushScale, y-24*brushScale);
+  ctx.lineTo(x+3*brushScale, y-17*brushScale);
+  ctx.closePath();
+  ctx.fillStyle = "#fff7e2";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-4*brushScale, y-2*brushScale, 1.6*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+4*brushScale, y-2*brushScale, 1.6*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y+2*brushScale, 1*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#f3d0c3";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x, y+3*brushScale);
+  ctx.lineTo(x, y+6*brushScale);
+  ctx.moveTo(x, y+6*brushScale);
+  ctx.arc(x-0.7*brushScale, y+6*brushScale, 0.7*brushScale, 0, Math.PI, false);
+  ctx.moveTo(x, y+6*brushScale);
+  ctx.arc(x+0.7*brushScale, y+6*brushScale, 0.7*brushScale, 0, Math.PI, false);
+  ctx.strokeStyle = "#f3d0c3";
+  ctx.lineWidth = 1*brushScale;
+  ctx.stroke();
+  ctx.restore();
+}
+function drawPenguin(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.97;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 12*brushScale, 17*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.shadowColor = "#fff";
+  ctx.shadowBlur = 8;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x, y+10*brushScale, 10*brushScale, 14*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.shadowBlur = 0;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-4*brushScale, y-3*brushScale, 1.5*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+4*brushScale, y-3*brushScale, 1.5*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y+10*brushScale, 2*brushScale, 0, Math.PI, false);
+  ctx.lineWidth = 2*brushScale;
+  ctx.strokeStyle = "#ffc570";
+  ctx.stroke();
+  ctx.restore();
+}
+function drawFox(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 13*brushScale, 11*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "#fea269";
+  ctx.shadowColor = "#fea269";
+  ctx.shadowBlur = 10;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x-8*brushScale, y-11*brushScale);
+  ctx.lineTo(x-15*brushScale, y-23*brushScale);
+  ctx.lineTo(x-3*brushScale, y-15*brushScale);
+  ctx.closePath();
+  ctx.moveTo(x+8*brushScale, y-11*brushScale);
+  ctx.lineTo(x+15*brushScale, y-23*brushScale);
+  ctx.lineTo(x+3*brushScale, y-15*brushScale);
+  ctx.closePath();
+  ctx.fillStyle = "#fea269";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-4*brushScale, y-1*brushScale, 1.5*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+4*brushScale, y-1*brushScale, 1.5*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y+2*brushScale, 1*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.restore();
+}
+function drawBear(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.98;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 14*brushScale, 13*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "#e5b78d";
+  ctx.shadowColor = "#e5b78d";
+  ctx.shadowBlur = 9;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-8*brushScale, y-10*brushScale, 4*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+8*brushScale, y-10*brushScale, 4*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#e5b78d";
+  ctx.shadowBlur = 0;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-4*brushScale, y-2*brushScale, 1.4*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+4*brushScale, y-2*brushScale, 1.4*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y+2*brushScale, 1.1*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.restore();
+}
+function drawFrog(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.98;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 13*brushScale, 11*brushScale, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "#bceba5";
+  ctx.shadowColor = "#bceba5";
+  ctx.shadowBlur = 10;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-6*brushScale, y-8*brushScale, 3*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+6*brushScale, y-8*brushScale, 3*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#bceba5";
+  ctx.shadowBlur = 0;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x-6*brushScale, y-8*brushScale, 1.3*brushScale, 0, 2*Math.PI);
+  ctx.arc(x+6*brushScale, y-8*brushScale, 1.3*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#2a2431";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y+3*brushScale, 1.1*brushScale, 0, 2*Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.restore();
+}
+function erase(x, y) {
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.beginPath();
+  ctx.arc(x, y, 22*brushScale, 0, 2*Math.PI);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(255,255,255,1)";
+  ctx.shadowColor = "#fff";
+  ctx.shadowBlur = 6*brushScale;
+  ctx.fill();
+ctx.restore();
+}
+    function drawOwl(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(x, y, 13*brushScale, 18*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#d9be93";
+      ctx.shadowColor = "#d9be93";
+      ctx.shadowBlur = 7*brushScale;
+      ctx.fill();
+      // Face
+      ctx.beginPath();
+      ctx.arc(x, y-7*brushScale, 9*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#f9efd9";
+      ctx.shadowBlur = 0;
+      ctx.fill();
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(x-4*brushScale, y-8*brushScale, 2*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+4*brushScale, y-8*brushScale, 2*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-4*brushScale, y-8*brushScale, 1*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+4*brushScale, y-8*brushScale, 1*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#3a2a1a";
+      ctx.fill();
+      // Beak
+      ctx.beginPath();
+      ctx.moveTo(x, y-4*brushScale);
+      ctx.lineTo(x-1*brushScale, y-2*brushScale);
+      ctx.lineTo(x+1*brushScale, y-2*brushScale);
+      ctx.closePath();
+      ctx.fillStyle = "#e2b64c";
+      ctx.fill();
+      // Feet
+      ctx.beginPath();
+      ctx.moveTo(x-4*brushScale, y+18*brushScale);
+      ctx.lineTo(x-4*brushScale, y+22*brushScale);
+      ctx.moveTo(x+4*brushScale, y+18*brushScale);
+      ctx.lineTo(x+4*brushScale, y+22*brushScale);
+      ctx.strokeStyle = "#e2b64c";
+      ctx.lineWidth = 2*brushScale;
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawTurtle(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.96;
+      // Shell
+      ctx.beginPath();
+      ctx.ellipse(x, y, 14*brushScale, 10*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#5ba16e";
+      ctx.shadowColor = "#5ba16e";
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      // Shell pattern
+      ctx.beginPath();
+      ctx.ellipse(x, y, 9*brushScale, 6*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#c6efc9";
+      ctx.fill();
+      // Head
+      ctx.beginPath();
+      ctx.arc(x+13*brushScale, y-2*brushScale, 4*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#a9cb7a";
+      ctx.fill();
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(x+14*brushScale, y-3*brushScale, 1*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+12*brushScale, y-3*brushScale, 1*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#2a2431";
+      ctx.fill();
+      // Legs
+      ctx.beginPath();
+      ctx.ellipse(x-10*brushScale, y+7*brushScale, 2.2*brushScale, 4*brushScale, -0.7, 0, 2*Math.PI);
+      ctx.ellipse(x+10*brushScale, y+7*brushScale, 2.2*brushScale, 4*brushScale, 0.7, 0, 2*Math.PI);
+      ctx.fillStyle = "#a9cb7a";
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawDuck(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(x, y, 13*brushScale, 9*brushScale, Math.PI/12, 0, 2*Math.PI);
+      ctx.fillStyle = "#ffe87c";
+      ctx.shadowColor = "#ffe87c";
+      ctx.shadowBlur = 7;
+      ctx.fill();
+      // Head
+      ctx.beginPath();
+      ctx.arc(x+10*brushScale, y-7*brushScale, 6*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fffba3";
+      ctx.shadowBlur = 0;
+      ctx.fill();
+      // Eye
+      ctx.beginPath();
+      ctx.arc(x+12*brushScale, y-8*brushScale, 1.1*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#2a2431";
+      ctx.fill();
+      // Beak
+      ctx.beginPath();
+      ctx.ellipse(x+17*brushScale, y-7*brushScale, 2.3*brushScale, 1.2*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#f49f4c";
+      ctx.fill();
+      // Wing
+      ctx.beginPath();
+      ctx.ellipse(x-4*brushScale, y-2*brushScale, 6*brushScale, 4*brushScale, Math.PI/4, 0, 2*Math.PI);
+      ctx.fillStyle = "#fffbc3";
+      ctx.globalAlpha = 0.72;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawBee(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.98;
+      // Body
+      ctx.beginPath();
+      ctx.ellipse(x, y, 8*brushScale, 5*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#ffe66f";
+      ctx.shadowColor = "#ffe66f";
+      ctx.shadowBlur = 8*brushScale;
+      ctx.fill();
+      // Stripes
+      ctx.beginPath();
+      ctx.moveTo(x-4*brushScale, y-5*brushScale);
+      ctx.lineTo(x-4*brushScale, y+5*brushScale);
+      ctx.moveTo(x, y-5*brushScale);
+      ctx.lineTo(x, y+5*brushScale);
+      ctx.moveTo(x+4*brushScale, y-5*brushScale);
+      ctx.lineTo(x+4*brushScale, y+5*brushScale);
+      ctx.strokeStyle = "#2a2431";
+      ctx.lineWidth = 2*brushScale;
+      ctx.stroke();
+      // Head
+      ctx.beginPath();
+      ctx.arc(x-9*brushScale, y-1*brushScale, 3*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#222";
+      ctx.shadowBlur = 0;
+      ctx.fill();
+      // Eye
+      ctx.beginPath();
+      ctx.arc(x-10*brushScale, y-1.5*brushScale, 1*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      // Wings
+      ctx.save();
+      ctx.globalAlpha = 0.34;
+      ctx.beginPath();
+      ctx.ellipse(x-2*brushScale, y-9*brushScale, 6*brushScale, 2.6*brushScale, -Math.PI/8, 0, 2*Math.PI);
+      ctx.ellipse(x+4*brushScale, y-9*brushScale, 6*brushScale, 2.6*brushScale, Math.PI/8, 0, 2*Math.PI);
+      ctx.fillStyle = "#8fd9f6";
+      ctx.fill();
+      ctx.restore();
+      ctx.restore();
+    }
+    function drawBalloon(x, y, colorable = true) {
+      let color = colorable ? currentColor : "#ff6f91";
+      ctx.save();
+      ctx.globalAlpha = 0.92;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 10*brushScale, 16*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 9*brushScale;
+      ctx.fill();
+      // String
+      ctx.beginPath();
+      ctx.moveTo(x, y+16*brushScale);
+      ctx.bezierCurveTo(x, y+22*brushScale, x-6*brushScale, y+29*brushScale, x+2*brushScale, y+35*brushScale);
+      ctx.strokeStyle = "#b78ee2";
+      ctx.lineWidth = 1.3*brushScale;
+      ctx.globalAlpha = 1.0;
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawUFO(x, y, colorable = true) {
+      let color = colorable ? currentColor : "#aee4f8";
+      ctx.save();
+      ctx.globalAlpha = 0.93;
+      // Saucer body
+      ctx.beginPath();
+      ctx.ellipse(x, y, 12*brushScale, 4.5*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 7*brushScale;
+      ctx.fill();
+      // Dome
+      ctx.beginPath();
+      ctx.ellipse(x, y-3.3*brushScale, 6*brushScale, 3.5*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#f6fff7";
+      ctx.shadowBlur = 0;
+      ctx.fill();
+      // Lights
+      for(let i=-2;i<=2;i++) {
+        ctx.beginPath();
+        ctx.arc(x+i*5*brushScale, y+2.5*brushScale, 1.2*brushScale, 0, 2*Math.PI);
+        ctx.fillStyle = ["#ffe66f","#9cffe3","#ffb6d5","#b6a6f4","#ff8d6b"][i+2];
+        ctx.fill();
+      
+      ctx.restore();
+    }
+    // Accessory drawing definitions
+    function drawGlasses(ctx, x, y, s, color="#222") {
+      ctx.save();
+      ctx.lineWidth = 3*s;
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(x-32*s, y, 26*s, 19*s, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+32*s, y, 26*s, 19*s, 0, 0, 2*Math.PI);
+      ctx.moveTo(x-6*s, y);
+      ctx.lineTo(x+6*s, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x-58*s, y);
+      ctx.lineTo(x-44*s, y);
+      ctx.moveTo(x+44*s, y);
+      ctx.lineTo(x+58*s, y);
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawRoundGlasses(ctx, x, y, s, color="#4b41bc") {
+      ctx.save();
+      ctx.lineWidth = 3.5*s;
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.arc(x-28*s, y, 21*s, 0, 2*Math.PI);
+      ctx.arc(x+28*s, y, 21*s, 0, 2*Math.PI);
+      ctx.moveTo(x-7*s, y);
+      ctx.lineTo(x+7*s, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x-48*s, y);
+      ctx.lineTo(x-35*s, y);
+      ctx.moveTo(x+35*s, y);
+      ctx.lineTo(x+48*s, y);
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawBlush(ctx, x, y, s, color="#ffb6c1") {
+      ctx.save();
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(x-28*s, y+18*s, 12*s, 6*s, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+28*s, y+18*s, 12*s, 6*s, 0, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawLongHairBrown(ctx, x, y, s) {
+      ctx.save();
+      ctx.globalAlpha = 0.95;
+      ctx.fillStyle = "#b38c6e";
+      ctx.beginPath();
+      ctx.ellipse(x, y-20*s, 65*s, 68*s, 0, Math.PI*1.13, Math.PI*1.87, false);
+      ctx.ellipse(x-41*s, y+15*s, 21*s, 42*s, Math.PI/5, 0, 2*Math.PI);
+      ctx.ellipse(x+41*s, y+15*s, 21*s, 42*s, -Math.PI/5, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawLongHairPink(ctx, x, y, s) {
+      ctx.save();
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "#ff8dcf";
+      ctx.beginPath();
+      ctx.ellipse(x, y-23*s, 66*s, 70*s, 0, Math.PI*1.13, Math.PI*1.87, false);
+      ctx.ellipse(x-43*s, y+16*s, 22*s, 42*s, Math.PI/5, 0, 2*Math.PI);
+      ctx.ellipse(x+43*s, y+16*s, 22*s, 42*s, -Math.PI/5, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawPigtails(ctx, x, y, s) {
+      ctx.save();
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "#f8ca6d";
+      ctx.beginPath();
+      ctx.ellipse(x-50*s, y+32*s, 20*s, 32*s, Math.PI/4, 0, 2*Math.PI);
+      ctx.ellipse(x+50*s, y+32*s, 20*s, 32*s, -Math.PI/4, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawCatEars(ctx, x, y, s) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.moveTo(x-43*s, y-62*s);
+      ctx.lineTo(x-63*s, y-95*s);
+      ctx.lineTo(x-25*s, y-75*s);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x+43*s, y-62*s);
+      ctx.lineTo(x+63*s, y-95*s);
+      ctx.lineTo(x+25*s, y-75*s);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = 0.93;
+      ctx.fillStyle = "#fcaec7";
+      ctx.beginPath();
+      ctx.moveTo(x-44*s, y-68*s);
+      ctx.lineTo(x-61*s, y-93*s);
+      ctx.lineTo(x-29*s, y-80*s);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x+44*s, y-68*s);
+      ctx.lineTo(x+61*s, y-93*s);
+      ctx.lineTo(x+29*s, y-80*s);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawBearEars(ctx, x, y, s) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      ctx.fillStyle = "#d3b18c";
+      ctx.beginPath();
+      ctx.ellipse(x-49*s, y-62*s, 17*s, 15*s, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+49*s, y-62*s, 17*s, 15*s, 0, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = 0.88;
+      ctx.fillStyle = "#fff7e2";
+      ctx.beginPath();
+      ctx.ellipse(x-49*s, y-62*s, 8*s, 7*s, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+49*s, y-62*s, 8*s, 7*s, 0, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawTopHat(ctx, x, y, s) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      ctx.fillStyle = "#222";
+      ctx.beginPath();
+      ctx.ellipse(x, y-78*s, 34*s, 10*s, 0, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.fillRect(x-20*s, y-120*s, 40*s, 45*s);
+      ctx.beginPath();
+      ctx.ellipse(x, y-120*s, 20*s, 8*s, 0, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = "#e36ba4";
+      ctx.fillRect(x-20*s, y-88*s, 40*s, 12*s);
+      ctx.restore();
+    }
+    function drawRibbon(ctx, x, y, s) {
+      ctx.save();
+      ctx.globalAlpha = 0.92;
+      ctx.fillStyle = "#e36ba4";
+      ctx.beginPath();
+      ctx.ellipse(x, y-64*s, 18*s, 10*s, 0, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x-13*s, y-67*s, 8*s, 15*s, -Math.PI/7, 0, 2*Math.PI);
+      ctx.ellipse(x+13*s, y-67*s, 8*s, 15*s, Math.PI/7, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Avatar state
+    const avatarCanvas = document.getElementById('avatar-customizer-canvas');
+    const avatarCtx = avatarCanvas.getContext('2d');
+    const AVATAR_CENTER = {x: 175, y: 225};
+    const AVATAR_BASE_SCALE = 1.0;
+
+    // Parts list: {part, x, y, scale}
+    let avatarParts = [];
+
+    function renderAvatar() {
+      avatarCtx.clearRect(0,0,avatarCanvas.width,avatarCanvas.height);
+      // Draw base image (when loaded)
+      if (avatarBaseImg.complete && avatarBaseImg.naturalWidth > 0) {
+        avatarCtx.drawImage(avatarBaseImg, 0, 0, 350, 450);
+      }
+      // Draw all parts
+      for(const p of avatarParts) {
+        drawAvatarPart(p, avatarCtx);
+        // Optional: draw bounding box for selected part
+        if (avatarParts.indexOf(p) === selectedPartIdx) {
+          avatarCtx.save();
+          avatarCtx.strokeStyle = "#b6e3ff";
+          avatarCtx.lineWidth = 2;
+          avatarCtx.setLineDash([6,5]);
+          avatarCtx.strokeRect(p.x-p.size*70, p.y-p.size*70, p.size*140, p.size*140);
+          avatarCtx.restore();
+        }
+      }
+    }
+
+    function drawAvatarPart(p, ctx) {
+      // Center is p.x, p.y; scale is p.size
+      switch(p.part) {
+        case "glasses":    drawGlasses(ctx, p.x, p.y, p.size, "#222"); break;
+        case "roundglasses": drawRoundGlasses(ctx, p.x, p.y, p.size, "#4b41bc"); break;
+        case "blush":      drawBlush(ctx, p.x, p.y, p.size); break;
+        case "longhairbrown": drawLongHairBrown(ctx, p.x, p.y, p.size); break;
+        case "longhairpink":  drawLongHairPink(ctx, p.x, p.y, p.size); break;
+        case "pigtails":   drawPigtails(ctx, p.x, p.y, p.size); break;
+        case "cat":        drawCatEars(ctx, p.x, p.y, p.size); break;
+        case "bear":       drawBearEars(ctx, p.x, p.y, p.size); break;
+        case "hat":        drawTopHat(ctx, p.x, p.y, p.size); break;
+        case "ribbon":     drawRibbon(ctx, p.x, p.y, p.size); break;
+        default: break;
+      }
+    }
+
+    // Add part
+    document.querySelectorAll('.avatar-part-btn').forEach(btn => {
+      btn.onclick = () => {
+        const part = btn.getAttribute("data-part");
+        let px = AVATAR_CENTER.x, py = AVATAR_CENTER.y-15;
+        let sz = 1.0;
+        // Custom default positions for certain parts
+        if (part.includes("hair")) { py = 150; sz = 1.1;}
+        if (part === "pigtails") { py = 210; sz = 1.1;}
+        if (part === "cat" || part === "bear") { py = 120; sz = 1.0;}
+        if (part === "hat") { py = 85; sz = 1.0;}
+        if (part === "ribbon") { py = 130; sz = 1.0;}
+        if (part === "blush") { py = 250; sz = 1.0;}
+        avatarParts.push({part: part, x: px, y: py, size: sz});
+        selectedPartIdx = avatarParts.length-1;
+        renderAvatar();
+      };
+    });
+
+    // Move & Scale Logic
+    let selectedPartIdx = -1, dragOffset = null, isResizing = false, lastDist = 0;
+    avatarCanvas.addEventListener('pointerdown', e => {
+      const rect = avatarCanvas.getBoundingClientRect();
+      const px = (e.clientX-rect.left)/rect.width*avatarCanvas.width;
+      const py = (e.clientY-rect.top)/rect.height*avatarCanvas.height;
+      // Find topmost part under pointer
+      selectedPartIdx = -1;
+      for(let i=avatarParts.length-1;i>=0;i--) {
+        const p = avatarParts[i];
+        if (px > p.x-p.size*70 && px < p.x+p.size*70 && py > p.y-p.size*70 && py < p.y+p.size*70) {
+          selectedPartIdx = i;
+          dragOffset = {dx: px-p.x, dy: py-p.y};
+          isResizing = (px > p.x+p.size*50 && py > p.y+p.size*50); // corner = resize
+          break;
+        }
+      }
+      renderAvatar();
+    });
+    avatarCanvas.addEventListener('pointermove', e => {
+      if (selectedPartIdx === -1 || !dragOffset) return;
+      const rect = avatarCanvas.getBoundingClientRect();
+      const px = (e.clientX-rect.left)/rect.width*avatarCanvas.width;
+      const py = (e.clientY-rect.top)/rect.height*avatarCanvas.height;
+      const part = avatarParts[selectedPartIdx];
+      if (isResizing) {
+        // Scale: distance from center
+        let dist0 = Math.max(35, Math.abs(dragOffset.dx)+Math.abs(dragOffset.dy));
+        let dist = Math.max(35, Math.sqrt((px-part.x)*(px-part.x)+(py-part.y)*(py-part.y)));
+        part.size *= dist/dist0;
+        part.size = Math.max(0.3, Math.min(2.5, part.size));
+        dragOffset = {dx: px-part.x, dy: py-part.y};
+      } else {
+        part.x = px-dragOffset.dx;
+        part.y = py-dragOffset.dy;
+      }
+      renderAvatar();
+    });
+    avatarCanvas.addEventListener('pointerup', e => {
+      dragOffset = null;
+      isResizing = false;
+    });
+
+    // Touch: pinch-to-zoom
+    avatarCanvas.addEventListener('touchstart', function(e){
+      if (e.touches.length === 2 && selectedPartIdx >= 0) {
+        isResizing = true;
+        lastDist = Math.hypot(
+          e.touches[0].clientX-e.touches[1].clientX,
+          e.touches[0].clientY-e.touches[1].clientY
+        );
+        e.preventDefault();
+      }
+    }, {passive: false});
+    avatarCanvas.addEventListener('touchmove', function(e){
+      if (e.touches.length === 2 && selectedPartIdx >= 0 && isResizing) {
+        let dist = Math.hypot(
+          e.touches[0].clientX-e.touches[1].clientX,
+          e.touches[0].clientY-e.touches[1].clientY
+        );
+        let p = avatarParts[selectedPartIdx];
+        p.size *= dist/lastDist;
+        p.size = Math.max(0.3, Math.min(2.5, p.size));
+        lastDist = dist;
+        renderAvatar();
+        e.preventDefault();
+      }
+    }, {passive: false});
+    avatarCanvas.addEventListener('touchend', function(e){
+      isResizing = false;
+    });
+
+    // Download avatar
+    document.getElementById('avatar-finish-btn').onclick = function(){
+      const url = avatarCanvas.toDataURL("image/png");
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "my-avatar.png";
+      a.click();
+    };
+
+    avatarBaseImg.onload = renderAvatar;
+    renderAvatar();
+
+    // --- NAVIGATION ---
+    document.getElementById('goto-avatar').onclick = (e)=>{
+      e.preventDefault();
+      document.getElementById('avatar-area').style.display = 'flex';
+      document.getElementById('game-area').style.display = 'none';
+      document.getElementById('flappy-embed-wrap').style.display = 'none';
+      document.getElementById('page-title').textContent = "Cloud Pals: Avatar Customizer";
+      document.querySelectorAll('.glitter-link').forEach(btn=>btn.classList.remove('active'));
+      document.getElementById('goto-avatar').classList.add('active');
+      renderAvatar();
+    };
+    document.getElementById('goto-painter').onclick = (e)=>{
+      e.preventDefault();
+      document.getElementById('avatar-area').style.display = 'none';
+      document.getElementById('game-area').style.display = '';
+      document.getElementById('flappy-embed-wrap').style.display = 'none';
+      document.getElementById('page-title').textContent = "Cloud Pals: Sky Painter";
+      document.querySelectorAll('.glitter-link').forEach(btn=>btn.classList.remove('active'));
+      document.getElementById('goto-painter').classList.add('active');
+    };
+}
+  </script>
+</body>
+</html>

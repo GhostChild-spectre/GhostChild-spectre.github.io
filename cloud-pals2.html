@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cloud Pals 2: Sky Painter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Fredoka+One|Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cute-purple: #bfaee5;
+      --cute-pink: #fae8f6;
+      --cute-blue: #d7f3fa;
+      --cute-yellow: #fffbe8;
+      --cute-shadow: #e7c0f7;
+      --cute-nav-bg: linear-gradient(90deg, #fae8f6 0%, #d7f3fa 100%);
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #f8f5fd 0%, #f3faff 100%);
+      font-family: "Quicksand", "Fredoka One", cursive, sans-serif;
+      color: #a18ae6;
+      box-sizing: border-box;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    .cute-nav {
+      position: fixed;
+      top: 0; left: 0; width: 100vw;
+      z-index: 1000;
+      background: var(--cute-nav-bg);
+      display: flex;
+      align-items: center;
+      gap: 2vw;
+      padding: 0.9em 0 0.7em 0;
+      border-bottom: 3px dashed #e7c0f7;
+      box-shadow: 0 2px 10px #e0d0ee33, 0 0 16px #f8e8fc33;
+      justify-content: center;
+      user-select: none;
+    }
+    .cute-nav-btn {
+      border: none;
+      outline: none;
+      text-decoration: none;
+      font-family: "Fredoka One", cursive;
+      font-size: 1.2em;
+      color: #a18ae6;
+      background: #fffbe8;
+      border-radius: 1.8em;
+      padding: 0.4em 2.1em;
+      margin: 0 0.3em;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #e7c0f719;
+      border: 2px solid #e7c0f7;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      transition: background 0.2s, color 0.18s, box-shadow 0.18s;
+      font-weight: 600;
+    }
+    .cute-nav-btn.selected, .cute-nav-btn:hover {
+      background: var(--cute-blue);
+      color: #fff;
+      box-shadow: 0 4px 14px #b6e6ff33;
+      border-color: #b6e6ff;
+      text-decoration: underline;
+    }
+    .cute-nav-btn.music {
+      background: var(--cute-purple);
+      color: #fff;
+      font-weight: bold;
+      border-color: #ccc6f6;
+    }
+    .cute-nav-btn.music.selected, .cute-nav-btn.music:hover {
+      background: #fff;
+      color: var(--cute-purple);
+    }
+    .sparkle, .sparkle2 {
+      font-size: 1.3em;
+      margin: 0 0.7em;
+      color: #dadffe;
+      filter: drop-shadow(0 0 4px #fff7);
+    }
+    .cute-main {
+      margin-top: 90px;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 90px);
+      align-items: center;
+      justify-content: flex-start;
+    }
+    #cute-bg {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100vw;
+      min-width: 100vw;
+      height: 95vh;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+    #painter-wrap {
+      position: relative;
+      margin-top: 0.5em;
+      background: transparent;
+      border-radius: 2.2em;
+      box-shadow: none;
+      min-width: 70vw; min-height: 60vh;
+      max-width: 96vw;
+      max-height: 70vh;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    #paint-canvas {
+      background: transparent;
+      border-radius: 2em;
+      box-shadow: 0 4px 16px #eaefff70;
+      width: 70vw;
+      height: 60vh;
+      min-width: 340px; min-height: 240px;
+      max-width: 900px; max-height: 540px;
+      display: block;
+      position: relative;
+      outline: none;
+      margin: 0 auto;
+      z-index: 2;
+      cursor: crosshair;
+    }
+    #brush-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7em;
+      justify-content: center;
+      align-items: center;
+      margin: 1.2em auto 0.5em auto;
+      z-index: 3;
+      font-size: 1.05em;
+    }
+    .brush-btn {
+      background: linear-gradient(90deg, #fae8f6 0%, #d7f3fa 100%);
+      border: 2px solid #e8caf9;
+      border-radius: 1.3em;
+      padding: 0.2em 1em;
+      color: #b78ee2;
+      font-family: "Fredoka One", cursive;
+      font-size: 1em;
+      cursor: pointer;
+      box-shadow: 0 2px 6px #d6b6ff27;
+      transition: background .17s, color .17s, transform .13s;
+      outline: none;
+      user-select: none;
+      margin-bottom: 0.2em;
+    }
+    .brush-btn.selected, .brush-btn:hover {
+      background: linear-gradient(90deg, #bfaee5 0%, #fae8f6 100%);
+      color: #fff;
+      transform: scale(1.06);
+      border-color: #bfaee5;
+    }
+    #controls-bar {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100vw;
+      background: rgba(246,246,255,0.92);
+      box-shadow: 0 -2px 12px #eaefff33;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 2em;
+      padding: 0.7em 0 0.5em 0;
+      z-index: 10;
+      font-size: 1.08em;
+      font-family: "Fredoka One", cursive;
+    }
+    #controls-bar label {
+      font-weight: bold;
+      color: #a18ae6;
+      margin-right: 0.5em;
+    }
+    #color-wheel {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid #bfaee5;
+      background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+      display: inline-block;
+      cursor: pointer;
+      position: relative;
+      margin-left: 0.4em;
+      margin-right: 0.4em;
+      vertical-align: middle;
+    }
+    #color-picker {
+      width: 32px; height: 32px;
+      opacity: 0;
+      position: absolute;
+      left: 0; top: 0;
+      cursor: pointer;
+    }
+    #selected-color-preview {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2.5px solid #b78ee2;
+      display: inline-block;
+      margin-left: 0.6em;
+      background: #fffae9;
+      box-shadow: 0 0 5px #b78ee211;
+      vertical-align: middle;
+    }
+    #brush-size {
+      width: 144px;
+      accent-color: #bfaee5;
+      margin: 0 0.4em;
+      vertical-align: middle;
+    }
+    #brush-size-label {
+      margin-left: 0.2em;
+      min-width: 3ch;
+      display: inline-block;
+      color: #a18ae6;
+      font-weight: bold;
+    }
+    @media (max-width: 900px) {
+      .cute-main { min-width: 98vw; }
+      #paint-canvas, #painter-wrap { min-width: 90vw; width: 90vw; }
+      #controls-bar { font-size: 1em; gap: 0.7em; }
+    }
+    @media (max-width: 600px) {
+      .cute-nav { flex-wrap: wrap; gap: 0.5em; }
+      #paint-canvas, #painter-wrap { min-width: 99vw; width: 99vw; }
+      #controls-bar { flex-direction: column; gap: 0.5em; font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cute-nav">
+    <span class="sparkle">✧</span>
+    <button class="cute-nav-btn selected" id="nav-sky"><span>🖌️</span> <b>Sky Painter</b></button>
+    <button class="cute-nav-btn" id="nav-avatar"><span>👤</span> Avatar Customizer</button>
+    <button class="cute-nav-btn" id="nav-flappy"><span>🐾</span> Flappy Corgi</button>
+    <button class="cute-nav-btn" id="nav-side"><span>🚶‍♂️</span> Little Side Stroll</button>
+    <button class="cute-nav-btn music" id="nav-music"><span>🎧</span> Music</button>
+    <span class="sparkle2">✦</span>
+  </div>
+  <svg id="cute-bg" width="100%" height="95%" viewBox="0 0 1200 700" preserveAspectRatio="none">
+    <defs>
+      <radialGradient id="sky" cx="50%" cy="42%" r="75%">
+        <stop offset="0%" stop-color="#fffbe8" />
+        <stop offset="100%" stop-color="#f3faff" />
+      </radialGradient>
+    </defs>
+    <rect x="0" y="0" width="1200" height="700" fill="url(#sky)" />
+    <ellipse cx="280" cy="660" rx="340" ry="80" fill="#e6f5e6" opacity="0.22"/>
+    <ellipse cx="900" cy="660" rx="320" ry="90" fill="#f6dcea" opacity="0.16"/>
+    <ellipse cx="700" cy="690" rx="220" ry="65" fill="#c9d9f5" opacity="0.09"/>
+    <ellipse cx="200" cy="590" rx="24" ry="70" fill="#c6e2c6" opacity="0.13"/>
+    <ellipse cx="330" cy="640" rx="36" ry="90" fill="#b6dcb6" opacity="0.13"/>
+    <ellipse cx="1080" cy="610" rx="32" ry="80" fill="#e5c6f6" opacity="0.09"/>
+    <ellipse cx="1000" cy="630" rx="22" ry="50" fill="#c9d9f5" opacity="0.07"/>
+  </svg>
+  <main class="cute-main">
+    <div id="painter-wrap">
+      <div id="brush-bar"></div>
+      <canvas id="paint-canvas" width="900" height="540" tabindex="0"></canvas>
+    </div>
+  </main>
+  <div id="controls-bar">
+    <label for="color-picker">Element Color</label>
+    <span id="color-wheel">
+      <input type="color" id="color-picker" value="#fceccc"/>
+    </span>
+    <span id="selected-color-preview"></span>
+    <label for="brush-size">Brush Size</label>
+    <input type="range" id="brush-size" min="0.5" max="2.5" step="0.05" value="1.0">
+    <span id="brush-size-label">1.0x</span>
+  </div>
+  <audio id="music-audio" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_127b9e7ce2.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    // --- State ---
+    const canvas = document.getElementById('paint-canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false, lastX = 0, lastY = 0;
+    let currentBrush = 'cloud';
+    let currentColor = "#fceccc";
+    let brushScale = 1.0;
+
+    // --- Brushes (animal brushes are not colorable) ---
+    const brushes = [
+      {name: 'cloud', label: '☁️ Cloud', func: drawCloud, colorable: true},
+      {name: 'puffycloud', label: '🌥️ Puffy Cloud', func: drawPuffyCloud, colorable: true},
+      {name: 'sun', label: '🌞 Sun', func: drawSun, colorable: true},
+      {name: 'moon', label: '🌙 Moon', func: drawMoon, colorable: true},
+      {name: 'rainbow', label: '🌈 Rainbow', func: drawRainbow, colorable: false},
+      {name: 'star', label: '⭐ Star', func: drawStar, colorable: true},
+      {name: 'sparkle', label: '✧ Sparkle', func: drawSparkle, colorable: true},
+      {name: 'heart', label: '💗 Heart', func: drawHeart, colorable: true},
+      {name: 'flower', label: '🌸 Flower', func: drawFlower, colorable: true},
+      {name: 'tulip', label: '🌷 Tulip', func: drawTulip, colorable: true},
+      {name: 'leaf', label: '🍃 Leaf', func: drawLeaf, colorable: true},
+      {name: 'crystal', label: '🔮 Crystal', func: drawCrystal, colorable: true},
+      {name: 'gem', label: '💎 Gem', func: drawGem, colorable: true},
+      {name: 'tree', label: '🌳 Tree', func: drawTree, colorable: true},
+      {name: 'rain', label: '💧 Rain', func: drawRain, colorable: true},
+      {name: 'wind', label: '💨 Wind', func: drawWind, colorable: true},
+      {name: 'swirl', label: '🌀 Swirl', func: drawSwirl, colorable: true},
+      // Non-colorable (animal) brushes
+      {name: 'bunny', label: '🐰 Bunny', func: drawBunny, colorable: false},
+      {name: 'starbunny', label: '🌟🐰 Star Bunny', func: drawStarBunny, colorable: false},
+      {name: 'cat', label: '🐱 Cat', func: drawCat, colorable: false},
+      {name: 'penguin', label: '🐧 Penguin', func: drawPenguin, colorable: false},
+      {name: 'fox', label: '🦊 Fox', func: drawFox, colorable: false},
+      {name: 'frog', label: '🐸 Frog', func: drawFrog, colorable: false},
+      {name: 'bee', label: '🐝 Bee', func: drawBeeSide, colorable: false},
+      {name: 'owl', label: '🦉 Owl', func: drawOwl, colorable: false},
+      // 5 new brushes!
+      {name: 'ufo', label: '🛸 UFO', func: drawUFO, colorable: false},
+      {name: 'balloon', label: '🎈 Balloon', func: drawBalloon, colorable: true},
+      {name: 'starburst', label: '✴️ Starburst', func: drawStarburst, colorable: true},
+      {name: 'dandelion', label: '🌼 Dandelion', func: drawDandelion, colorable: true},
+      {name: 'musicnote', label: '🎶 Note', func: drawMusicNote, colorable: true},
+      {name: 'erase', label: '⛔ Erase', func: eraseBrush, colorable: false}
+    ];
+
+    // --- Brush Bar ---
+    const brushBar = document.getElementById('brush-bar');
+    brushes.forEach(brush => {
+      const btn = document.createElement('button');
+      btn.textContent = brush.label;
+      btn.className = 'brush-btn' + (brush.name===currentBrush?' selected':'');
+      btn.onclick = () => selectBrush(brush.name);
+      btn.id = 'brush-'+brush.name;
+      brushBar.appendChild(btn);
+    });
+    function selectBrush(name) {
+      currentBrush = name;
+      document.querySelectorAll('.brush-btn').forEach(btn=>btn.classList.remove('selected'));
+      document.getElementById('brush-'+name).classList.add('selected');
+      const b = brushes.find(b=>b.name===name);
+      document.getElementById('color-wheel').style.display = (b.colorable) ? '' : 'none';
+    }
+    document.getElementById('color-picker').oninput = e => {
+      currentColor = e.target.value;
+      document.getElementById('selected-color-preview').style.background = currentColor;
+    };
+    document.getElementById('selected-color-preview').style.background = currentColor;
+    document.getElementById('brush-size').oninput = e => {
+      brushScale = Number(e.target.value);
+      document.getElementById('brush-size-label').textContent = brushScale.toFixed(2)+'x';
+    };
+    function getXY(e) {
+      let rect = canvas.getBoundingClientRect();
+      if(e.touches) e = e.touches[0];
+      return {
+        x: (e.clientX - rect.left) * (canvas.width/rect.width),
+        y: (e.clientY - rect.top) * (canvas.height/rect.height)
+      };
+    }
+    canvas.addEventListener('pointerdown', e=>{
+      drawing = true;
+      const {x, y} = getXY(e);
+      lastX = x; lastY = y;
+      drawAt(x, y);
+    });
+    canvas.addEventListener('pointermove', e=>{
+      if(!drawing) return;
+      const {x, y} = getXY(e);
+      drawLine(lastX, lastY, x, y);
+      lastX = x; lastY = y;
+    });
+    canvas.addEventListener('pointerup', ()=>drawing=false);
+    canvas.addEventListener('pointerleave', ()=>drawing=false);
+    canvas.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      drawing = true;
+      const {x, y} = getXY(e);
+      lastX = x; lastY = y;
+      drawAt(x, y);
+    }, {passive:false});
+    canvas.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      if(!drawing) return;
+      const {x, y} = getXY(e);
+      drawLine(lastX, lastY, x, y);
+      lastX = x; lastY = y;
+    }, {passive:false});
+    canvas.addEventListener('touchend', ()=>drawing=false);
+    function drawAt(x, y) {
+      const brush = brushes.find(b=>b.name===currentBrush);
+      brush.func(x, y, brush.colorable);
+    }
+    function drawLine(x0, y0, x1, y1) {
+      const dist = Math.hypot(x1-x0, y1-y0);
+      const steps = Math.ceil(dist/(8*brushScale));
+      for(let i=0;i<=steps;i++) {
+        const t = i/steps;
+        drawAt(x0 + (x1-x0)*t, y0 + (y1-y0)*t);
+      }
+    }
+    // --- Music ---
+    let musicAudio = document.getElementById('music-audio');
+    let muted = true;
+    document.getElementById('nav-music').onclick = ()=>{
+      muted = !muted;
+      musicAudio.muted = muted;
+      if(!muted) musicAudio.play();
+      document.getElementById('nav-music').classList.toggle('selected', !muted);
+    };
+    document.getElementById('nav-avatar').onclick =
+    document.getElementById('nav-flappy').onclick =
+    document.getElementById('nav-side').onclick = function() {
+      alert("This section is coming soon! Try painting the sky!");
+    };
+
+    // --- Drawing functions ---
+    // (Animal brushes ignore the colorable parameter and use their own palette)
+    function drawCloud(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 38*brushScale, 22*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x-28*brushScale, y+12*brushScale, 21*brushScale, 18*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+28*brushScale, y+14*brushScale, 18*brushScale, 14*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x-10*brushScale, y-13*brushScale, 16*brushScale, 13*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+18*brushScale, y-7*brushScale, 13*brushScale, 10*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 12*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawPuffyCloud(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.72;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 18*brushScale, 10*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x-10*brushScale, y+8*brushScale, 9*brushScale, 7*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+12*brushScale, y+5*brushScale, 8*brushScale, 6*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 5*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawSun(x, y) {
+      let r = (32 + Math.random()*6) * brushScale;
+      let color = currentColor;
+      let g = ctx.createRadialGradient(x, y, 2, x, y, r);
+      g.addColorStop(0, color);
+      g.addColorStop(0.25, color);
+      g.addColorStop(0.5, "#fff8ba");
+      g.addColorStop(1, "rgba(255,255,220,0)");
+      ctx.save();
+      ctx.globalAlpha = 0.89;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, 2*Math.PI);
+      ctx.closePath();
+      ctx.fillStyle = g;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 16;
+      ctx.fill();
+      ctx.save();
+      ctx.globalAlpha = 0.09;
+      for(let i=0;i<12;i++) {
+        ctx.beginPath();
+        ctx.arc(x, y, r+7+Math.random()*8, (i/12)*2*Math.PI, (i/12)*2*Math.PI+0.18);
+        ctx.lineWidth = 10*brushScale;
+        ctx.strokeStyle = "#fffbe8";
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.restore();
+    }
+    function drawMoon(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.83;
+      ctx.beginPath();
+      ctx.arc(x, y, 20*brushScale, Math.PI*1.1, Math.PI*2.8, false);
+      ctx.arc(x+6*brushScale, y, 15*brushScale, Math.PI*2.8, Math.PI*1.1, true);
+      ctx.closePath();
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = "#fff";
+      ctx.shadowBlur = 14*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawRainbow(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.68;
+      const rainbowColors = ["#FFB6B6","#FFE59F","#FFFACD","#C7E8CB","#A8C6F6","#bfaee5"];
+      for(let i=0;i<6;i++) {
+        ctx.beginPath();
+        ctx.strokeStyle = rainbowColors[i];
+        ctx.lineWidth = (10-1.2*i)*brushScale;
+        ctx.arc(x, y, (30+10*i)*brushScale, Math.PI*1.12, Math.PI*1.88);
+        ctx.shadowColor = rainbowColors[i];
+        ctx.shadowBlur = 5-i*0.8;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    function drawStar(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.88;
+      ctx.fillStyle = currentColor;
+      ctx.strokeStyle = "#fff";
+      ctx.beginPath();
+      const outer = 14 * brushScale;
+      const inner = 6 * brushScale;
+      for(let i=0;i<5;i++) {
+        let angle = (Math.PI*2/5)*i - Math.PI/2;
+        ctx.lineTo(x + Math.cos(angle)*outer, y + Math.sin(angle)*outer);
+        angle += Math.PI/5;
+        ctx.lineTo(x + Math.cos(angle)*inner, y + Math.sin(angle)*inner);
+      }
+      ctx.closePath();
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 6*brushScale;
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawSparkle(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      for(let i=0;i<8;i++) {
+        let angle = (Math.PI*2/8)*i;
+        ctx.moveTo(x, y);
+        ctx.lineTo(x+Math.cos(angle)*16*brushScale, y+Math.sin(angle)*16*brushScale);
+      }
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 2*brushScale;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 4*brushScale;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x, y, 6*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = currentColor;
+      ctx.globalAlpha = 0.35;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawHeart(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.82;
+      ctx.beginPath();
+      ctx.moveTo(x, y+10*brushScale);
+      ctx.bezierCurveTo(x-22*brushScale, y-18*brushScale, x+22*brushScale, y-18*brushScale, x, y+10*brushScale);
+      ctx.bezierCurveTo(x-18*brushScale, y-3*brushScale, x-15*brushScale, y+16*brushScale, x, y+27*brushScale);
+      ctx.bezierCurveTo(x+15*brushScale, y+16*brushScale, x+18*brushScale, y-3*brushScale, x, y+10*brushScale);
+      ctx.closePath();
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = "#ffb6d5";
+      ctx.shadowBlur = 7*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawFlower(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.78;
+      for(let i=0;i<7;i++) {
+        ctx.beginPath();
+        let angle = (Math.PI*2/7)*i;
+        ctx.ellipse(x + Math.cos(angle)*16*brushScale, y + Math.sin(angle)*16*brushScale, 7*brushScale, 16*brushScale, angle, 0, 2*Math.PI);
+        ctx.fillStyle = currentColor;
+        ctx.shadowColor = currentColor;
+        ctx.shadowBlur = 4*brushScale;
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, 8*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff7b8";
+      ctx.shadowColor = "#fff7b8";
+      ctx.shadowBlur = 5*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawTulip(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.80;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x-13*brushScale, y-17*brushScale, x+13*brushScale, y-17*brushScale, x, y);
+      ctx.lineTo(x-6*brushScale, y-14*brushScale);
+      ctx.lineTo(x, y-9*brushScale);
+      ctx.lineTo(x+6*brushScale, y-14*brushScale);
+      ctx.closePath();
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 3*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawLeaf(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.78;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x+14*brushScale, y-22*brushScale, x+26*brushScale, y+19*brushScale, x, y+34*brushScale);
+      ctx.bezierCurveTo(x-26*brushScale, y+19*brushScale, x-14*brushScale, y-22*brushScale, x, y);
+      ctx.closePath();
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 5*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawCrystal(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.82;
+      ctx.beginPath();
+      ctx.moveTo(x, y-18*brushScale);
+      ctx.lineTo(x+9*brushScale, y+12*brushScale);
+      ctx.lineTo(x, y+22*brushScale);
+      ctx.lineTo(x-9*brushScale, y+12*brushScale);
+      ctx.closePath();
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 6*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawGem(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.80;
+      ctx.beginPath();
+      ctx.moveTo(x, y-21*brushScale);
+      ctx.lineTo(x+15*brushScale, y-6*brushScale);
+      ctx.lineTo(x+10*brushScale, y+21*brushScale);
+      ctx.lineTo(x-10*brushScale, y+21*brushScale);
+      ctx.lineTo(x-15*brushScale, y-6*brushScale);
+      ctx.closePath();
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 8*brushScale;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawTree(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.93;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 21*brushScale, 28*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x-21*brushScale, y+14*brushScale, 18*brushScale, 22*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+21*brushScale, y+14*brushScale, 18*brushScale, 22*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 9*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.rect(x-7*brushScale, y+22*brushScale, 14*brushScale, 30*brushScale);
+      ctx.fillStyle = "#cfa66b";
+      ctx.shadowBlur = 0;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawRain(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.60 + 0.09*Math.random();
+      ctx.beginPath();
+      ctx.ellipse(x, y, 7*brushScale, (16+Math.random()*8)*brushScale, Math.PI/8, 0, 2*Math.PI);
+      ctx.closePath();
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 5;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawWind(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.52 + 0.13*Math.random();
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = (6 + Math.random()*2) * brushScale;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x+28*brushScale, y-18*brushScale, x+62*brushScale, y+16*brushScale, x+70*brushScale+Math.random()*10, y-21*brushScale+Math.random()*18);
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawSwirl(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.68;
+      ctx.beginPath();
+      let a = Math.random()*Math.PI*2;
+      for(let i=0;i<32;i++) {
+        let r = (i/2)*brushScale;
+        ctx.lineTo(x + Math.cos(a+i/6)*r*6, y + Math.sin(a+i/6)*r*6);
+      }
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 3*brushScale;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 4*brushScale;
+      ctx.stroke();
+      ctx.restore();
+    }
+    // --- Animal and special brushes (NOT colorable) ---
+    function drawBunny(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.96;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 23*brushScale, 28*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.shadowColor = "#fff";
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x-13*brushScale, y-35*brushScale, 9*brushScale, 36*brushScale, -0.16, 0, 2*Math.PI);
+      ctx.ellipse(x+13*brushScale, y-35*brushScale, 9*brushScale, 36*brushScale, 0.16, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-10*brushScale, y-7*brushScale, 3.5*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+10*brushScale, y-7*brushScale, 3.5*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#2a2431";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y+7*brushScale, 2.8*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#eab3c1";
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawStarBunny(x, y) {
+      drawBunny(x, y);
+      drawStar(x, y-32*brushScale, false);
+    }
+    function drawCat(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 20*brushScale, 18*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#f8e7cf";
+      ctx.shadowColor = "#f8e7cf";
+      ctx.shadowBlur = 7*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x-18*brushScale, y-19*brushScale);
+      ctx.lineTo(x-29*brushScale, y-39*brushScale);
+      ctx.lineTo(x-4*brushScale, y-17*brushScale);
+      ctx.fillStyle = "#f8e7cf";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x+18*brushScale, y-19*brushScale);
+      ctx.lineTo(x+29*brushScale, y-39*brushScale);
+      ctx.lineTo(x+4*brushScale, y-17*brushScale);
+      ctx.fillStyle = "#f8e7cf";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-9*brushScale, y-8*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+9*brushScale, y-8*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#2a2431";
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawPenguin(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 18*brushScale, 28*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#23243f";
+      ctx.shadowColor = "#23243f";
+      ctx.shadowBlur = 8*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x, y+7*brushScale, 14*brushScale, 22*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-6*brushScale, y-9*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+6*brushScale, y-9*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#2a2431";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x, y+19*brushScale);
+      ctx.lineTo(x-4*brushScale, y+28*brushScale);
+      ctx.lineTo(x+4*brushScale, y+28*brushScale);
+      ctx.closePath();
+      ctx.fillStyle = "#ffb86c";
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawFox(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.98;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 22*brushScale, 18*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#f7b87f";
+      ctx.shadowColor = "#f7b87f";
+      ctx.shadowBlur = 8*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x-18*brushScale, y-13*brushScale);
+      ctx.lineTo(x-32*brushScale, y-34*brushScale);
+      ctx.lineTo(x-4*brushScale, y-18*brushScale);
+      ctx.fillStyle = "#f7b87f";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x+18*brushScale, y-13*brushScale);
+      ctx.lineTo(x+32*brushScale, y-34*brushScale);
+      ctx.lineTo(x+4*brushScale, y-18*brushScale);
+      ctx.fillStyle = "#f7b87f";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-8*brushScale, y-8*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+8*brushScale, y-8*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#2a2431";
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawFrog(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.97;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 18*brushScale, 14*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#77d67a";
+      ctx.shadowColor = "#77d67a";
+      ctx.shadowBlur = 7*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-11*brushScale, y-10*brushScale, 3.8*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+11*brushScale, y-10*brushScale, 3.8*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#77d67a";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-11*brushScale, y-10*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+11*brushScale, y-10*brushScale, 2.2*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#222";
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawBeeSide(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.93;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 17*brushScale, 10*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#ffe063";
+      ctx.shadowColor = "#ffe063";
+      ctx.shadowBlur = 4*brushScale;
+      ctx.fill();
+      ctx.save();
+      ctx.strokeStyle = "#222";
+      ctx.lineWidth = 2*brushScale;
+      for (let i=-8; i<=8; i+=8) {
+        ctx.beginPath();
+        ctx.moveTo(x+i*brushScale, y-10*brushScale);
+        ctx.lineTo(x+i*brushScale, y+10*brushScale);
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.ellipse(x+6*brushScale, y-10*brushScale, 10*brushScale, 6*brushScale, Math.PI/7, 0, 2*Math.PI);
+      ctx.ellipse(x+13*brushScale, y-10*brushScale, 8*brushScale, 5*brushScale, Math.PI/4, 0, 2*Math.PI);
+      ctx.fillStyle = "#e5f5ff";
+      ctx.fill();
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(x-14*brushScale, y, 8*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#222";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-18*brushScale, y-2*brushScale, 2*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-18*brushScale, y-2*brushScale, 1*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#222";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x-17*brushScale, y-6*brushScale);
+      ctx.lineTo(x-21*brushScale, y-13*brushScale);
+      ctx.moveTo(x-13*brushScale, y-7*brushScale);
+      ctx.lineTo(x-12*brushScale, y-14*brushScale);
+      ctx.strokeStyle = "#222";
+      ctx.lineWidth = 1.5*brushScale;
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawOwl(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.96;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 19*brushScale, 24*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#bfaee5";
+      ctx.shadowColor = "#bfaee5";
+      ctx.shadowBlur = 7*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x-12*brushScale, y-18*brushScale, 6*brushScale, 11*brushScale, 0, 0, 2*Math.PI);
+      ctx.ellipse(x+12*brushScale, y-18*brushScale, 6*brushScale, 11*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#bfaee5";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-9*brushScale, y-11*brushScale, 3.1*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+9*brushScale, y-11*brushScale, 3.1*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x-9*brushScale, y-11*brushScale, 1.3*brushScale, 0, 2*Math.PI);
+      ctx.arc(x+9*brushScale, y-11*brushScale, 1.3*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#2a2431";
+      ctx.fill();
+      ctx.restore();
+    }
+    // --- New special/cute brushes ---
+    function drawUFO(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.96;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 26*brushScale, 10*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = "#b6e3ff";
+      ctx.shadowColor = "#b6e3ff";
+      ctx.shadowBlur = 5*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x, y-7*brushScale, 12*brushScale, 8*brushScale, 0, 0, Math.PI, true);
+      ctx.fillStyle = "#fffbe8";
+      ctx.globalAlpha = 0.6;
+      ctx.fill();
+      ctx.globalAlpha = 0.96;
+      for(let i=-14;i<=14;i+=7){
+        ctx.beginPath();
+        ctx.arc(x+i*brushScale, y+6*brushScale, 2.5*brushScale, 0, 2*Math.PI);
+        ctx.fillStyle = "#ffd6fa";
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    function drawBalloon(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.84;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 10*brushScale, 18*brushScale, 0, 0, 2*Math.PI);
+      ctx.fillStyle = currentColor;
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = 4*brushScale;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x, y+18*brushScale);
+      ctx.lineTo(x, y+30*brushScale);
+      ctx.strokeStyle = "#a18ae6";
+      ctx.lineWidth = 2*brushScale;
+      ctx.stroke();
+      ctx.restore();
+    }
+    function drawStarburst(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.71;
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 3*brushScale;
+      for(let i=0;i<12;i++) {
+        let angle = (Math.PI*2/12)*i;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x+Math.cos(angle)*24*brushScale, y+Math.sin(angle)*24*brushScale);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, 10*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = currentColor;
+      ctx.globalAlpha = 0.25;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawDandelion(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.82;
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 1.3*brushScale;
+      for(let i=0;i<16;i++) {
+        let angle = (Math.PI*2/16)*i;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x+Math.cos(angle)*17*brushScale, y+Math.sin(angle)*17*brushScale);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x+Math.cos(angle)*17*brushScale, y+Math.sin(angle)*17*brushScale, 2.5*brushScale, 0, 2*Math.PI);
+        ctx.fillStyle = currentColor;
+        ctx.globalAlpha = 0.6;
+        ctx.fill();
+        ctx.globalAlpha = 0.82;
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, 5*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fffbe8";
+      ctx.globalAlpha = 0.4;
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawMusicNote(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 0.81;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y-32*brushScale);
+      ctx.moveTo(x, y-18*brushScale);
+      ctx.lineTo(x+10*brushScale, y-22*brushScale);
+      ctx.arc(x+10*brushScale, y-17*brushScale, 5*brushScale, Math.PI*1.5, Math.PI*3.5);
+      ctx.moveTo(x, y);
+      ctx.arc(x, y+5*brushScale, 5*brushScale, Math.PI*1.5, Math.PI*3.5);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 2.5*brushScale;
+      ctx.stroke();
+      ctx.restore();
+    }
+    // Eraser
+    function eraseBrush(x, y) {
+      ctx.save();
+      ctx.globalAlpha = 1.0;
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.arc(x, y, 18*brushScale, 0, 2*Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.shadowColor = "#fff";
+      ctx.shadowBlur = 0;
+      ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.restore();
+    }
+  </script>
+</body>
+</html>
